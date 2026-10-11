@@ -40,7 +40,7 @@ TCGplayer market prices supplied through Scryfall; earlier days come from
 MTGJSON's TCGplayer prices.
 """
 import argparse
-import gzip
+import gzip, math
 import io
 import json
 import lzma
@@ -589,7 +589,10 @@ def build(args):
         for cid in [cid for cid, series in shard.items() if all(v is None for s in series for v in s)]:
             del shard[cid]
 
+    check = source_check(dates, idx, shards, info, quote_data, ids)
     write_output(args.out, today, dates, shards, movers(today, dates, shards, info), sources, tried, quote_data, ids, ids_date)
+    with open(os.path.join(args.out, "check.json"), "w", encoding="utf-8") as fh:
+        json.dump(check, fh, ensure_ascii=False, indent=1)
 
 
 def movers(today, dates, shards, info):
@@ -634,6 +637,40 @@ def movers(today, dates, shards, info):
             block[market] = {"up": up, "down": down}
         result[str(days)] = block
     return result
+
+
+def source_check(dates, idx, shards, info, quote_data, ids):
+    """How well today's Scryfall prices agree with MTGJSON's (today's shop
+    prices and the previous day in the history): written to check.json."""
+    quotes = (quote_data or ({}, {}, ""))[0]
+    per_sid = {}
+    for uuid, sid in (ids or {}).items():
+        per_sid.setdefault(sid, []).append(uuid)
+    out = {"date": dates[idx] if dates else "", "prev": dates[idx - 1] if idx > 0 else ""}
+    for label, series_i, shop, qi in (("usd", 0, "tcgplayer", 0), ("eur", 2, "cardmarket", 0)):
+        vs_today, vs_prev = [], []
+        for shard in shards.values():
+            for cid, series in shard.items():
+                now = series[series_i][idx]
+                if not now or now < 100:
+                    continue
+                q = ((quotes.get(cid) or {}).get(shop) or [])
+                if len(q) > qi and q[qi]:
+                    vs_today.append((q[qi] / now, cid, now, q[qi]))
+                if idx > 0 and series[series_i][idx - 1]:
+                    vs_prev.append((series[series_i][idx - 1] / now, cid, now, series[series_i][idx - 1]))
+        def summary(rows):
+            if not rows:
+                return {"n": 0}
+            r = sorted(x[0] for x in rows)
+            close = sum(1 for x in r if 0.85 <= x <= 1.15) / len(r)
+            worst = sorted(rows, key=lambda x: -abs(math.log(x[0])))[:15]
+            return {"n": len(r), "median_ratio": round(r[len(r) // 2], 3), "within_15pct": round(close, 3),
+                    "worst": [{"id": c, "name": (info.get(c) or {}).get("n", ""), "set": (info.get(c) or {}).get("s", ""),
+                               "num": (info.get(c) or {}).get("c", ""), "scryfall": now, "mtgjson": other,
+                               "mtgjson_uuids": len(per_sid.get(c, []))} for _, c, now, other in worst]}
+        out[label] = {"mtgjson_today": summary(vs_today), "previous_day": summary(vs_prev)}
+    return out
 
 
 def write_gz(path, obj):
