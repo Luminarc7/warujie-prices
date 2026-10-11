@@ -590,7 +590,10 @@ def build(args):
             del shard[cid]
 
     check = source_check(dates, idx, shards, info, quote_data, ids)
-    write_output(args.out, today, dates, shards, movers(today, dates, shards, info), sources, tried, quote_data, ids, ids_date)
+    mover_data = movers(today, dates, shards, info, (quote_data or ({},))[0])
+    check["movers_top"] = {w: {m: {d: [f"{e['n']} ({e['s']}) {e['then']}->{e['now']} {e['pct']}%" for e in blk[m][d][:5]]
+                                   for d in ("up", "down")} for m in MARKETS} for w, blk in mover_data.items()}
+    write_output(args.out, today, dates, shards, mover_data, sources, tried, quote_data, ids, ids_date)
     with open(os.path.join(args.out, "check.json"), "w", encoding="utf-8") as fh:
         json.dump(check, fh, ensure_ascii=False, indent=1)
 
@@ -601,7 +604,7 @@ def steady(values, lo, hi):
     return got[len(got) // 2] if got else None
 
 
-def movers(today, dates, shards, info):
+def movers(today, dates, shards, info, quotes=None):
     idx = len(dates) - 1
     t = date.fromisoformat(today)
     result = {}
@@ -619,6 +622,7 @@ def movers(today, dates, shards, info):
             continue
         block = {"from": dates[j]}
         for market, (a, b) in MARKETS.items():
+            shop = "cardmarket" if market == "eur" else "tcgplayer"
             best = {}   # oracle id -> entry (one printing per card: the biggest move)
             for shard in shards.values():
                 for cid, series in shard.items():
@@ -639,6 +643,12 @@ def movers(today, dates, shards, info):
                     s_then = steady(values, j - 2, j) if days == 1 else steady(values, j - 1, j + 1)
                     if (s_now - s_then) * (now - then) <= 0 or abs(s_now - s_then) < MIN_CHANGE_CENTS \
                             or min(s_now, s_then) < MIN_PRICE_CENTS:
+                        continue
+                    # today's price is doubtful when MTGJSON's figure for the same shop
+                    # disagrees a lot (the older days of a new history come from MTGJSON)
+                    q = ((quotes or {}).get(cid) or {}).get(shop) or []
+                    other = q[is_foil] if len(q) > is_foil else None
+                    if other and not (0.8 <= other / now <= 1.25):
                         continue
                     pct = (now - then) / then * 100
                     key = meta["o"] or cid
