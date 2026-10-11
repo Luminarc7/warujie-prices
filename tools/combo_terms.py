@@ -37,12 +37,16 @@ def main():
                     features[f] += pop
             subs = []
             for i, n in enumerate(names):
-                subs.append((n, "{%d}" % i))
-                if " // " in n:
-                    for part in n.split(" // "):
-                        subs.append((part, "{%d}" % i))
+                forms = {n}
+                for part in n.split(" // "):
+                    forms.add(part)
+                    if ", " in part:
+                        forms.add(part.split(", ")[0])
+                for f in forms:
+                    if len(f) >= 3:
+                        subs.append((f, "«%d»" % i))
             for i, n in enumerate(tnames):
-                subs.append((n, "{T%d}" % i))
+                subs.append((n, "«T%d»" % i))
             subs.sort(key=lambda s: -len(s[0]))
             text = "\n".join(t for t in (bc.pick(v, "notablePrerequisites", default=""), bc.pick(v, "easyPrerequisites", default=""),
                                          bc.pick(v, "description", default="")) if t)
@@ -53,6 +57,8 @@ def main():
                 norm = line
                 for n, ph in subs:
                     norm = norm.replace(n, ph)
+                norm = re.sub(r"(\{[^{}]{1,5}\})+", "«M»", norm)
+                norm = re.sub(r"\b\d+\b", "«N»", norm)
                 lines[norm] += pop
                 if norm not in examples:
                     examples[norm] = line
@@ -60,7 +66,7 @@ def main():
            "features": features.most_common(),
            "templates": templates.most_common(),
            "lines_total": sum(lines.values()), "lines_distinct": len(lines),
-           "lines": [[l, c, examples[l]] for l, c in lines.most_common(40000)]}
+           "lines": [[l, c, examples[l]] for l, c in lines.most_common(60000)]}
     dest = os.path.join(os.path.dirname(os.path.abspath(__file__)), "combo_terms.json.gz")
     with gzip.open(dest, "wt", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False)
