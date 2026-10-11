@@ -52,7 +52,10 @@ import urllib.request
 from datetime import date, datetime, timedelta, timezone
 
 BULK_DATA_ENDPOINT = "https://api.scryfall.com/bulk-data"
-HEADERS = {"User-Agent": "AkuchiePriceHistory/1.0", "Accept": "application/json"}
+HEADERS = {"User-Agent": "WarujiePriceHistory/1.1 (+https://github.com/Luminarc7/warujie-prices)", "Accept": "application/json"}
+TCGCSV_BASE = "https://tcgcsv.com/"   # TCGplayer's prices, republished once a day (lowest listings too)
+CARDMARKET_GUIDE = "https://downloads.s3.cardmarket.com/productCatalog/priceGuide/price_guide_1.json"   # Cardmarket's own daily price guide (Magic)
+LOWS_SOURCE = "TCGCSV (TCGplayer lowest listings) and Cardmarket's price guide (lowest offers)"
 
 FORMAT_VERSION = 1
 DAILY_DAYS = 120            # keep every day for this long, then weekly
@@ -433,6 +436,113 @@ def previous_quotes(source, index):
     return (quotes, index.get("providers") or {}, index["quotes_date"]) if quotes else None
 
 
+# ------------------------------------------------------------------ cheapest listings
+def fetch_json(source):
+    """JSON from a URL or a local file/folder path."""
+    if source.startswith(("http://", "https://")):
+        with http_get(source) as resp:
+            raw = resp.read()
+    else:
+        with open(source, "rb") as fh:
+            raw = fh.read()
+    if raw[:2] == b"\x1f\x8b":
+        raw = gzip.decompress(raw)
+    return json.loads(raw.decode("utf-8"))
+
+
+def tcgplayer_lows(base, wanted):
+    """Lowest TCGplayer listing (any condition) by product id, from TCGCSV:
+    {product id: [non-foil, foil]} in cents, for the products in `wanted`."""
+    print("Reading TCGplayer's lowest listings from TCGCSV...")
+    join = (lambda *p: base.rstrip("/") + "/" + "/".join(p)) if base.startswith("http") else (lambda *p: os.path.join(base, *p))
+    groups = fetch_json(join("tcgplayer", "1", "groups")).get("results") or []
+    lows, failed = {}, 0
+    for g in groups:
+        gid = str(g.get("groupId") or "")
+        if not gid:
+            continue
+        try:
+            rows = fetch_json(join("tcgplayer", "1", gid, "prices")).get("results") or []
+        except Exception:   # one set missing is fine
+            failed += 1
+            continue
+        for r in rows:
+            pid = r.get("productId")
+            if pid not in wanted:
+                continue
+            c = cents(r.get("lowPrice"))
+            if c is None:
+                continue
+            slot = 1 if "foil" in str(r.get("subTypeName") or "").lower() else 0
+            lows.setdefault(pid, [None, None])[slot] = c
+        if base.startswith("http"):
+            time.sleep(0.1)   # TCGCSV asks for a short pause between requests
+    if not lows:
+        raise ValueError("no TCGplayer prices found")
+    print(f"  {len(lows)} products from {len(groups)} sets" + (f" ({failed} sets could not be read)" if failed else ""))
+    return lows
+
+
+def cardmarket_lows(source, wanted):
+    """Lowest Cardmarket offer (any condition or language) by product id:
+    {product id: [non-foil, foil]} in cents, from Cardmarket's price guide."""
+    print("Reading Cardmarket's price guide...")
+    lows = {}
+    for r in fetch_json(source).get("priceGuides") or []:
+        pid = r.get("idProduct")
+        if pid not in wanted:
+            continue
+        vals = [cents(r.get("low")), cents(r.get("low-foil"))]
+        if vals != [None, None]:
+            lows[pid] = vals
+    if not lows:
+        raise ValueError("no Cardmarket prices found")
+    print(f"  {len(lows)} products")
+    return lows
+
+
+def add_lows(quote_data, today, products, args):
+    """Adds "tcgplayer_low" and "cardmarket_low" to today's shop prices."""
+    quotes, currencies, qdate = quote_data or ({}, {}, today)
+    found = False
+    for shop, currency, read, src, slot in (
+            ("tcgplayer_low", "USD", tcgplayer_lows, args.tcgcsv or TCGCSV_BASE, 0),
+            ("cardmarket_low", "EUR", cardmarket_lows, args.cardmarket_guide or CARDMARKET_GUIDE, 1)):
+        wanted = {}
+        for cid, ids in products.items():
+            for i, pid in enumerate(ids[slot] if slot == 0 else [ids[slot]]):
+                if pid:
+                    wanted.setdefault(pid, []).append((cid, i))
+        try:
+            lows = read(src, wanted)
+        except Exception as err:   # the daily update goes on without them
+            print(f"  note: {shop} prices could not be read ({err}).")
+            continue
+        for pid, vals in lows.items():
+            for cid, etched in wanted[pid]:
+                row = quotes.setdefault(cid, {}).setdefault(shop, [None, None])
+                if etched:      # TCGplayer lists etched foils as their own product
+                    if row[1] is None:
+                        row[1] = vals[1] if vals[1] is not None else vals[0]
+                else:
+                    row[0] = vals[0] if vals[0] is not None else row[0]
+                    if vals[1] is not None:
+                        row[1] = vals[1]
+        currencies[shop] = currency
+        found = True
+    if not found:
+        return quote_data
+    for shops in quotes.values():
+        for shop in ("tcgplayer_low", "cardmarket_low"):
+            row = shops.get(shop)
+            if row is not None:
+                while row and row[-1] is None:
+                    row.pop()
+                if not row:
+                    del shops[shop]
+    return quotes, currencies, qdate or today
+
+
 # ------------------------------------------------------------------ cards
 def faces(card):
     return card.get("card_faces") or []
@@ -540,11 +650,14 @@ def build(args):
     source = args.bulk or bulk_url()
     print("Reading", source)
     info = {}
+    products = {}   # Scryfall id -> ([TCGplayer product, etched product], Cardmarket product)
     seen = priced = 0
     for card in iter_cards(source):
         seen += 1
         if card.get("lang", "en") != "en":
             continue
+        if card.get("tcgplayer_id") or card.get("tcgplayer_etched_id") or card.get("cardmarket_id"):
+            products[card["id"]] = ([card.get("tcgplayer_id"), card.get("tcgplayer_etched_id")], card.get("cardmarket_id"))
         p = card.get("prices") or {}
         usd = cents(p.get("usd"))
         foil = cents(p.get("usd_foil"))
@@ -589,6 +702,10 @@ def build(args):
         for cid in [cid for cid, series in shard.items() if all(v is None for s in series for v in s)]:
             del shard[cid]
 
+    if args.lows != "never" and products:
+        quote_data = add_lows(quote_data, today, products, args)
+        if quote_data and any(k in quote_data[1] for k in ("tcgplayer_low", "cardmarket_low")) and LOWS_SOURCE not in sources:
+            sources.append(LOWS_SOURCE)
     check = source_check(dates, idx, shards, info, quote_data, ids)
     mover_data = movers(today, dates, shards, info, (quote_data or ({},))[0])
     check["movers_top"] = {w: {m: {d: [f"{e['n']} ({e['s']}) {e['then']}->{e['now']} {e['pct']}%" for e in blk[m][d][:5]]
@@ -745,9 +862,10 @@ def write_output(out, today, dates, shards, mover_data, sources=None, backfill_t
         fh.write("")
     with open(os.path.join(out, "index.html"), "w", encoding="utf-8") as fh:
         fh.write("<!doctype html><meta charset='utf-8'><title>悪知恵 price data</title>"
-                 "<p>Price history data for 悪知恵. Prices: TCGplayer via "
-                 "<a href='https://scryfall.com'>Scryfall</a>; earlier days via "
-                 "<a href='https://mtgjson.com'>MTGJSON</a>.</p>")
+                 "<p>Price history data for 悪知恵. Prices: TCGplayer and Cardmarket via "
+                 "<a href='https://scryfall.com'>Scryfall</a>; earlier days and shop prices via "
+                 "<a href='https://mtgjson.com'>MTGJSON</a>; lowest listings via "
+                 "<a href='https://tcgcsv.com'>TCGCSV</a> and Cardmarket's price guide.</p>")
     print(f"Wrote {len(dates)} dates, {sum(len(s) for s in shards.values())} printings, "
           f"{total / 1e6:.1f} MB of history; movers for {', '.join(mover_data) or 'no windows yet'} day(s)")
 
@@ -766,6 +884,9 @@ def main():
     ap.add_argument("--mtgjson-ids", default="", help="a saved AllIdentifiers.json(.xz/.gz) to use instead of downloading")
     ap.add_argument("--mtgjson-today", default="", help="a saved AllPricesToday.json(.xz/.gz) to use instead of downloading")
     ap.add_argument("--quotes", choices=("auto", "never"), default="auto", help="today's prices at several shops, from MTGJSON")
+    ap.add_argument("--lows", choices=("auto", "never"), default="auto", help="lowest listings from TCGCSV and Cardmarket's price guide")
+    ap.add_argument("--tcgcsv", default="", help="a folder laid out like tcgcsv.com to use instead of downloading")
+    ap.add_argument("--cardmarket-guide", default="", help="a saved Cardmarket price guide to use instead of downloading")
     build(ap.parse_args())
 
 
