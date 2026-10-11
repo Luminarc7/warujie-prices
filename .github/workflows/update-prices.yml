@@ -29,7 +29,7 @@ on:
   workflow_dispatch:         # adds a "Run workflow" button
   push:                      # and runs when the builder or this file changes
     branches: [main]
-    paths: [build_prices.py, .github/workflows/update-prices.yml]
+    paths: [build_prices.py, build_combos.py, .github/workflows/update-prices.yml]
 
 permissions:
   contents: read
@@ -76,6 +76,12 @@ jobs:
       # (If MTGJSON can't be reached, the day's update still goes ahead.)
       - name: Build the price history
         run: python3 build_prices.py --out site --previous "${{ steps.pages.outputs.url }}" ${{ steps.pages.outputs.fresh }}
+
+      # Commander combos for the card pages, from Commander Spellbook's bulk
+      # file: rebuilt once a week, copied over from the published data on
+      # the other days. Never stops the price update.
+      - name: Build the Commander combos
+        run: python3 build_combos.py --out site/c --previous "${{ steps.pages.outputs.url }}"
 
       - uses: actions/upload-pages-artifact@v4
         with:
