@@ -810,7 +810,20 @@ def source_check(dates, idx, shards, info, quote_data, ids):
                     "worst": [{"id": c, "name": (info.get(c) or {}).get("n", ""), "set": (info.get(c) or {}).get("s", ""),
                                "num": (info.get(c) or {}).get("c", ""), "scryfall": now, "mtgjson": other,
                                "mtgjson_uuids": len(per_sid.get(c, []))} for _, c, now, other in worst]}
-        out[label] = {"mtgjson_today": summary(vs_today), "previous_day": summary(vs_prev)}
+        lows = []
+        low_key = "tcgplayer_low" if label == "usd" else "cardmarket_low"
+        for shard in shards.values():
+            for cid, series in shard.items():
+                now = series[series_i][idx]
+                low = ((quotes.get(cid) or {}).get(low_key) or [None])[0]
+                if now and now >= 100 and low:
+                    lows.append((low / now, cid, now, low))
+        r = sorted(x[0] for x in lows)
+        out[label] = {"mtgjson_today": summary(vs_today), "previous_day": summary(vs_prev),
+                      "lowest_listing": {"n": len(r), "median_low_to_market": round(r[len(r) // 2], 3) if r else None,
+                                         "share_above_market": round(sum(1 for x in r if x > 1.05) / len(r), 3) if r else None,
+                                         "examples": [f"{(info.get(c) or {}).get('n', c)} ({(info.get(c) or {}).get('s', '')}) market {now} low {low}"
+                                                      for _, c, now, low in sorted(lows, key=lambda x: -x[2])[:8]]}}
     return out
 
 
