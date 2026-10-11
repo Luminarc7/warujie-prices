@@ -7,6 +7,10 @@ import collections, gzip, json, os, re, sys, tempfile
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import build_combos as bc
 
+STOP = {"black", "white", "green", "blue", "red", "token", "tokens", "creature", "treasure", "lightning", "dark", "grim", "elvish", "goblin",
+        "ancient", "great", "grand", "high", "lord", "lady", "king", "queen", "master", "elder", "young", "old", "sword", "ring", "scepter", "the",
+        "eternal", "mystic", "sacred", "temple", "tomb", "path", "city", "village", "phyrexian", "arcane", "infinite", "dramatic", "rings"}
+
 def main():
     tmp = tempfile.mkdtemp()
     src = os.path.join(tmp, "variants.json.gz")
@@ -42,6 +46,9 @@ def main():
                     forms.add(part)
                     if ", " in part:
                         forms.add(part.split(", ")[0])
+                    first = part.split(" ")[0].rstrip(",")
+                    if len(first) >= 4 and first[0].isupper() and first.lower() not in STOP and " " in part:
+                        forms.add(first)
                 for f in forms:
                     if len(f) >= 3:
                         subs.append((f, "«%d»" % i))
