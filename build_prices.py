@@ -58,7 +58,7 @@ FORMAT_VERSION = 1
 DAILY_DAYS = 120            # keep every day for this long, then weekly
 WINDOWS = (1, 7, 30)        # movers: change over this many days
 MOVERS_PER_LIST = 50
-MIN_PRICE_CENTS = 200       # movers: the card must be worth at least $2 then or now ...
+MIN_PRICE_CENTS = 200       # movers: the card must be worth at least $2 both then and now ...
 MIN_CHANGE_CENTS = 50       # ... and have moved by at least $0.50 (cheap cards jump around)
 SERIES = 4                  # per printing: US dollars non-foil, foil; euros non-foil, foil
 SERIES_NAMES = ["usd", "usd_foil", "eur", "eur_foil"]
@@ -595,6 +595,12 @@ def build(args):
         json.dump(check, fh, ensure_ascii=False, indent=1)
 
 
+def steady(values, lo, hi):
+    """The middle value of values[lo..hi] (inclusive; gaps skipped)."""
+    got = sorted(v for v in values[max(lo, 0):hi + 1] if v is not None)
+    return got[len(got) // 2] if got else None
+
+
 def movers(today, dates, shards, info):
     idx = len(dates) - 1
     t = date.fromisoformat(today)
@@ -624,7 +630,15 @@ def movers(today, dates, shards, info):
                     now, then = values[idx], values[j]
                     if now is None or then is None or then <= 0:
                         continue
-                    if max(now, then) < MIN_PRICE_CENTS or abs(now - then) < MIN_CHANGE_CENTS:
+                    if min(now, then) < MIN_PRICE_CENTS or abs(now - then) < MIN_CHANGE_CENTS:
+                        continue
+                    # one day's odd price (thinly traded cards jump around) shouldn't
+                    # make a mover: the move must also show in the middle of a few
+                    # days at each end
+                    s_now = now if days == 1 else steady(values, idx - 2, idx)
+                    s_then = steady(values, j - 2, j) if days == 1 else steady(values, j - 1, j + 1)
+                    if (s_now - s_then) * (now - then) <= 0 or abs(s_now - s_then) < MIN_CHANGE_CENTS \
+                            or min(s_now, s_then) < MIN_PRICE_CENTS:
                         continue
                     pct = (now - then) / then * 100
                     key = meta["o"] or cid
