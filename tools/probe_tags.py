@@ -3,22 +3,27 @@
 few example cards (to choose the roles for the site's role search)."""
 import json, os, time, urllib.parse, urllib.request, urllib.error
 H = {"User-Agent": "WarujiePriceHistory/1.1 (+https://github.com/Luminarc7/warujie-prices)", "Accept": "application/json"}
-CANDIDATES = """removal creature-removal artifact-removal enchantment-removal planeswalker-removal land-removal removal-creature removal-artifact
-removal-enchantment removal-planeswalker removal-land removal-any removal-permanent spot-removal hard-removal soft-removal
-boardwipe sweeper wrath board-wipe mass-removal creature-sweeper counterspell soft-counter hard-counter
-draw card-draw draw-card card-advantage cantrip wheel impulse impulse-draw loot looter rummage rummager
-ramp mana-ramp land-ramp mana-dork mana-rock mana-producer mana-ramp-land adds-multiple-mana cost-reducer mana-doubler
-tutor tutor-land tutor-creature tutor-artifact tutor-enchantment tutor-instant tutor-sorcery tutor-any land-tutor
-graveyard-hate reanimate reanimation reanimator creature-reanimation recursion regrowth recursion-creature
-blink flicker flicker-creature sacrifice-outlet sac-outlet free-sac-outlet free-sacrifice-outlet
-discard hand-disruption discard-outlet burn burn-any burn-creature burn-player lifegain gain-life life-gain
-token-generator tokens create-token creature-token-generator token-maker treasure-maker makes-treasure
-pump anthem lord evasion gives-evasion clone copy copy-spell edict forced-sacrifice mill self-mill
-drain drain-life land-destruction bounce tapper untapper extra-turn extra-combat-phase threaten steal gain-control
-protection gives-protection fog hatebear stax haste-enabler gives-haste scry surveil proliferate
-counter-placement plus-one-counters synergy-sacrifice aristocrats death-trigger etb-trigger cast-trigger
-cheat-into-play put-onto-battlefield cast-from-graveyard flashback-granter bounce-land fetchland
-land-tutor damage-prevention lifelink gives-lifelink deathtouch-granter""".split()
+CANDIDATES = """creates-token creates-tokens create-tokens token-creator token-generation token-producer makes-tokens synergy-token token-maker-creature
+buff-power buff-strength buff-temporary pump-spell combat-trick power-pump
+control-steal steal-permanent control-change gain-control-of mind-control control-magic theft
+stone-rain mass-land-destruction land-destruction-mass
+etb etb-effect enters-trigger etb-trigger-self ltb ltb-trigger leaves-trigger
+discard-opponent targeted-discard hand-attack discard-target opponent-discard
+mill-opponent mill-target mill-player
+lifegain-matters gain-life-matters
+counter-creature counterspell-creature counterspell-noncreature
+mana-sink cost-reduction treasure synergy-treasure food clue
+wrath-creature boardwipe-creature boardwipe-nonland
+banish banish-creature exile-removal doomblade
+pinger ping
+mana-fixing fixing land-fetch
+alternate-win-condition win-condition wincon
+graveyard-recursion recursion-artifact recursion-land
+reanimate-creature reanimate-self
+protection-creature hexproof-granter gives-hexproof gives-indestructible
+flash-enabler gives-flash
+copy-permanent token-copy
+removal-exile removal-destroy removal-bounce removal-damage removal-sacrifice removal-minus""".split()
 out = {}
 for slug in CANDIDATES:
     q = f"otag:{slug}"
