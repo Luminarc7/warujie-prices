@@ -13,7 +13,10 @@ prices of every printing to the stored history, and writes:
                        non-foil and foil
     q/00.json.gz ...   today's prices at several shops - TCGplayer, Card
                        Kingdom (selling and buying), Cardsphere, Cardmarket -
-                       from MTGJSON's daily price file
+                       from MTGJSON's daily price file; the lowest listings
+                       (TCGCSV, Cardmarket's price guide); and offers by
+                       condition with the copies in stock, from Card Kingdom's
+                       and Mana Pool's public price lists
     movers.json        biggest risers and fallers over 1, 7 and 30 days, for
                        the US market (dollars) and the European one (euros)
     ids.json.gz        MTGJSON's card ids matched to Scryfall's (kept for a week)
@@ -56,6 +59,11 @@ HEADERS = {"User-Agent": "WarujiePriceHistory/1.1 (+https://github.com/Luminarc7
 TCGCSV_BASE = "https://tcgcsv.com/"   # TCGplayer's prices, republished once a day (lowest listings too)
 CARDMARKET_GUIDE = "https://downloads.s3.cardmarket.com/productCatalog/priceGuide/price_guide_1.json"   # Cardmarket's own daily price guide (Magic)
 LOWS_SOURCE = "TCGCSV (TCGplayer lowest listings) and Cardmarket's price guide (lowest offers)"
+CK_PRICELIST = "https://api.cardkingdom.com/api/v2/pricelist"          # Card Kingdom's public price list (stock by condition)
+MANAPOOL_VARIANTS = "https://manapool.com/api/v1/prices/variants"      # Mana Pool's public prices (by language, condition, finish)
+OFFERS_SOURCE = "Card Kingdom and Mana Pool (offers by condition, with stock; their public price lists)"
+CK_CONDITIONS = (("nm", "NM"), ("ex", "EX"), ("vg", "VG"), ("g", "G"))
+LISTINGS_PER_FINISH = 12    # offers kept per printing and finish (the cheapest)
 
 FORMAT_VERSION = 1
 DAILY_DAYS = 120            # keep every day for this long, then weekly
@@ -543,6 +551,129 @@ def add_lows(quote_data, today, products, args):
     return quotes, currencies, qdate or today
 
 
+# ------------------------------------------------------------------ offers with condition and stock
+def json_list(source, key="data", meta=None):
+    """The items of the list under `key` in a JSON object (a URL or a file),
+    read piece by piece - Mana Pool's list is about 200 MB. The object's other
+    top-level values go into `meta`. Card Kingdom sends its JSON inside an
+    HTML page; the wrapping is skipped."""
+    raw = http_get(source) if source.startswith(("http://", "https://")) else open(source, "rb")
+    with raw:
+        stream = gzip.GzipFile(fileobj=raw) if source.endswith(".gz") else raw
+        reader = _JsonStream(io.TextIOWrapper(stream, encoding="utf-8"))
+        while "{" not in reader.buf[reader.pos:]:
+            if not reader.more():
+                raise ValueError(f"no JSON object in {source}")
+        reader.pos = reader.buf.index("{", reader.pos)
+        reader.expect("{")
+        while True:
+            ch = reader.peek()
+            if ch in ("}", ""):
+                return
+            if ch == ",":
+                reader.pos += 1
+                continue
+            k = reader.value()
+            reader.expect(":")
+            if k != key:
+                v = reader.value()
+                if meta is not None:
+                    meta[k] = v
+                continue
+            reader.expect("[")
+            while True:
+                ch = reader.peek()
+                if ch == "]":
+                    reader.pos += 1
+                    break
+                if ch == ",":
+                    reader.pos += 1
+                    continue
+                if ch == "":
+                    raise ValueError(f"the list in {source} ended early")
+                yield reader.value()
+
+
+def cardkingdom_offers(source, rows, links):
+    """Card Kingdom's own stock: a row per condition with copies in stock -
+    ["ck", foil, condition, cents, copies, ""]. Card Kingdom grades NM, EX, VG
+    and G."""
+    print("Reading Card Kingdom's price list...")
+    meta, n = {}, 0
+    for r in json_list(source, meta=meta):
+        sid = r.get("scryfall_id")
+        if not sid:
+            continue
+        foil = 1 if str(r.get("is_foil")).lower() == "true" else 0
+        cv = r.get("condition_values") or {}
+        for key, grade in CK_CONDITIONS:
+            c, qty = cents(cv.get(key + "_price")), cv.get(key + "_qty") or 0
+            if c and qty > 0:
+                rows.setdefault(sid, []).append(["ck", foil, grade, c, int(qty), ""])
+                n += 1
+        if r.get("url"):
+            pair = links.setdefault(sid, {}).setdefault("ck", ["", ""])
+            if not pair[foil]:
+                pair[foil] = r["url"]
+    if not n:
+        raise ValueError("no Card Kingdom stock found")
+    print(f"  {n} offers")
+    return str((meta.get("meta") or {}).get("created_at") or "")
+
+
+def manapool_offers(source, rows, links):
+    """Mana Pool's marketplace: the cheapest offer and the copies available for
+    every language, condition and finish - ["mp", foil, condition, cents,
+    copies, language ("" = English)]. Conditions NM, LP, MP, HP, DMG."""
+    print("Reading Mana Pool's price list...")
+    meta, n = {}, 0
+    for r in json_list(source, meta=meta):
+        sid = r.get("scryfall_id")
+        c, qty = r.get("low_price"), r.get("available_quantity") or 0
+        if not sid or not isinstance(c, int) or c <= 0 or qty <= 0:
+            continue
+        foil = 0 if (r.get("finish_id") or "NF") == "NF" else 1     # FO and etched (EF) count as foil
+        lang = str(r.get("language_id") or "EN").upper()
+        rows.setdefault(sid, []).append(["mp", foil, str(r.get("condition_id") or ""), c, int(qty), "" if lang == "EN" else lang])
+        n += 1
+        if r.get("url") and "mp" not in links.get(sid, {}):
+            links.setdefault(sid, {})["mp"] = r["url"]
+    if not n:
+        raise ValueError("no Mana Pool offers found")
+    print(f"  {n} offers")
+    return str((meta.get("meta") or {}).get("as_of") or "")
+
+
+def shop_offers(args, products):
+    """Offers with condition and stock from the shops' public price lists, by
+    Scryfall id: ({id: rows}, {id: links}, {shop: as-of time}). Each printing
+    keeps its cheapest LISTINGS_PER_FINISH offers per finish. Links: Card
+    Kingdom's product pages, Mana Pool's card page, and TCGplayer's and
+    Cardmarket's product numbers (for the lowest listings in the shop prices)."""
+    rows, links, when = {}, {}, {}
+    for shop, read, src in (("cardkingdom", cardkingdom_offers, args.ck_pricelist or CK_PRICELIST),
+                            ("manapool", manapool_offers, args.manapool_variants or MANAPOOL_VARIANTS)):
+        try:
+            when[shop] = read(src, rows, links) or "?"
+        except Exception as err:   # the daily update goes on without them
+            print(f"  note: {shop}'s offers could not be read ({err}).")
+    for sid, got in rows.items():
+        got.sort(key=lambda r: (r[1], r[3], -r[4]))
+        kept, per = [], [0, 0]
+        for r in got:
+            if per[r[1]] < LISTINGS_PER_FINISH:
+                kept.append(r)
+                per[r[1]] += 1
+        rows[sid] = kept
+    for sid, (tcg, cm) in products.items():
+        pid = tcg[0] or tcg[1]
+        if pid:
+            links.setdefault(sid, {})["tcg"] = pid
+        if cm:
+            links.setdefault(sid, {})["cm"] = cm
+    return rows, links, when
+
+
 # ------------------------------------------------------------------ cards
 def faces(card):
     return card.get("card_faces") or []
@@ -706,11 +837,18 @@ def build(args):
         quote_data = add_lows(quote_data, today, products, args)
         if quote_data and any(k in quote_data[1] for k in ("tcgplayer_low", "cardmarket_low")) and LOWS_SOURCE not in sources:
             sources.append(LOWS_SOURCE)
+    offers = None
+    if args.offers != "never":
+        offers = shop_offers(args, products)
+        if offers[2] and OFFERS_SOURCE not in sources:
+            sources.append(OFFERS_SOURCE)
     check = source_check(dates, idx, shards, info, quote_data, ids)
+    if offers:
+        check["offers"] = {"as_of": offers[2], "printings": len(offers[0]), "rows": sum(len(r) for r in offers[0].values())}
     mover_data = movers(today, dates, shards, info, (quote_data or ({},))[0])
     check["movers_top"] = {w: {m: {d: [f"{e['n']} ({e['s']}) {e['then']}->{e['now']} {e['pct']}%" for e in blk[m][d][:5]]
                                    for d in ("up", "down")} for m in MARKETS} for w, blk in mover_data.items()}
-    write_output(args.out, today, dates, shards, mover_data, sources, tried, quote_data, ids, ids_date)
+    write_output(args.out, today, dates, shards, mover_data, sources, tried, quote_data, ids, ids_date, offers)
     with open(os.path.join(args.out, "check.json"), "w", encoding="utf-8") as fh:
         json.dump(check, fh, ensure_ascii=False, indent=1)
 
@@ -835,7 +973,7 @@ def write_gz(path, obj):
     return os.path.getsize(path)
 
 
-def write_output(out, today, dates, shards, mover_data, sources=None, backfill_tried="", quote_data=None, ids=None, ids_date=""):
+def write_output(out, today, dates, shards, mover_data, sources=None, backfill_tried="", quote_data=None, ids=None, ids_date="", offers=None):
     os.makedirs(os.path.join(out, "h"), exist_ok=True)
     total = 0
     keys = sorted(set(f"{i:02x}" for i in range(256)) | set(shards))   # Scryfall ids are hex, so normally just the 256
@@ -846,14 +984,24 @@ def write_output(out, today, dates, shards, mover_data, sources=None, backfill_t
                 gz.write(payload)
         total += os.path.getsize(os.path.join(out, "h", f"{key}.json.gz"))
     quotes_date, providers = "", {}
-    if quote_data:
-        quotes, providers, quotes_date = quote_data
+    rows, links, offers_when = offers or ({}, {}, {})
+    if quote_data or rows:
+        quotes, providers, quotes_date = quote_data or ({}, {}, today)
         os.makedirs(os.path.join(out, "q"), exist_ok=True)
         by_shard = {}
-        for sid, shops in quotes.items():
-            by_shard.setdefault(sid[:2], {})[sid] = shops
-        qsize = sum(write_gz(os.path.join(out, "q", f"{key}.json.gz"), {"date": quotes_date, "p": by_shard.get(key, {})}) for key in keys)
-        print(f"Wrote shop prices of {quotes_date} for {len(quotes)} printings ({qsize / 1e6:.1f} MB)")
+        for part, data in (("p", quotes), ("l", rows), ("lk", links if rows or quote_data else {})):
+            for sid, value in data.items():
+                by_shard.setdefault(sid[:2], {}).setdefault(part, {})[sid] = value
+        def shard_file(key):
+            got = by_shard.get(key, {})
+            obj = {"date": quotes_date, "p": got.get("p", {})}
+            if rows:
+                obj["l"] = got.get("l", {})
+            if "lk" in got:
+                obj["lk"] = got["lk"]
+            return obj
+        qsize = sum(write_gz(os.path.join(out, "q", f"{key}.json.gz"), shard_file(key)) for key in keys)
+        print(f"Wrote shop prices of {quotes_date} for {len(quotes)} printings and offers for {len(rows)} ({qsize / 1e6:.1f} MB)")
     if ids:
         write_gz(os.path.join(out, "ids.json.gz"), {"date": ids_date, "map": ids})
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -865,6 +1013,8 @@ def write_output(out, today, dates, shards, mover_data, sources=None, backfill_t
         if quotes_date:
             meta["quotes_date"] = quotes_date
             meta["providers"] = providers
+        if rows:
+            meta["offers"] = offers_when
         if backfill_tried:
             meta["backfill_tried"] = backfill_tried
         json.dump(meta, fh, separators=(",", ":"))
@@ -878,7 +1028,8 @@ def write_output(out, today, dates, shards, mover_data, sources=None, backfill_t
                  "<p>Price history data for 悪知恵. Prices: TCGplayer and Cardmarket via "
                  "<a href='https://scryfall.com'>Scryfall</a>; earlier days and shop prices via "
                  "<a href='https://mtgjson.com'>MTGJSON</a>; lowest listings via "
-                 "<a href='https://tcgcsv.com'>TCGCSV</a> and Cardmarket's price guide.</p>")
+                 "<a href='https://tcgcsv.com'>TCGCSV</a> and Cardmarket's price guide; offers with stock via "
+                 "Card Kingdom's and Mana Pool's public price lists.</p>")
     print(f"Wrote {len(dates)} dates, {sum(len(s) for s in shards.values())} printings, "
           f"{total / 1e6:.1f} MB of history; movers for {', '.join(mover_data) or 'no windows yet'} day(s)")
 
@@ -900,6 +1051,9 @@ def main():
     ap.add_argument("--lows", choices=("auto", "never"), default="auto", help="lowest listings from TCGCSV and Cardmarket's price guide")
     ap.add_argument("--tcgcsv", default="", help="a folder laid out like tcgcsv.com to use instead of downloading")
     ap.add_argument("--cardmarket-guide", default="", help="a saved Cardmarket price guide to use instead of downloading")
+    ap.add_argument("--offers", choices=("auto", "never"), default="auto", help="offers by condition with stock (Card Kingdom, Mana Pool)")
+    ap.add_argument("--ck-pricelist", default="", help="a saved Card Kingdom price list to use instead of downloading")
+    ap.add_argument("--manapool-variants", default="", help="a saved Mana Pool variant price list to use instead of downloading")
     build(ap.parse_args())
 
 
