@@ -1,0 +1,27 @@
+# One-off helper: a look at the CardTrader API's answers (saved in tools/probe/).
+name: Probe CardTrader
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [tools/probe_ct.py]
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - run: python3 tools/probe_ct.py
+        env:
+          CARDTRADER_TOKEN: ${{ secrets.CARDTRADER_TOKEN }}
+      - name: Save the summary
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tools/probe
+          git commit -m "CardTrader probe" && git push || echo "nothing new"
