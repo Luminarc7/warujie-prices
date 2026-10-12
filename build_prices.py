@@ -44,6 +44,8 @@ TCGplayer market prices supplied through Scryfall; earlier days come from
 MTGJSON's TCGplayer prices.
 """
 import argparse
+import concurrent.futures
+import threading
 import gzip, math
 import io
 import json
@@ -68,6 +70,8 @@ LISTINGS_PER_FINISH = 12    # offers kept per printing, market and finish (the c
 CARDTRADER_API = "https://api.cardtrader.com/api/v2"                    # needs a CardTrader account's API token (CARDTRADER_TOKEN)
 CARDTRADER_SOURCE = "CardTrader (offers by condition, with stock, from sellers in Europe; CardTrader API)"
 CARDTRADER_MINUTES = 40     # time allowed for reading CardTrader's marketplace each day
+CARDTRADER_WORKERS = 4      # sets read at the same time
+CARDTRADER_PAUSE = 0.15     # seconds between marketplace requests (CardTrader allows 10 a second)
 FX_TO_EUR = "https://api.frankfurter.dev/v2/rate/{cur}/EUR"           # the European Central Bank's rate, for CardTrader prices not in euros
 CT_CONDITIONS = {"Mint": "M", "Near Mint": "NM", "Slightly Played": "SP", "Moderately Played": "MP",
                  "Played": "PL", "Heavily Played": "HP", "Poor": "PO"}
@@ -654,14 +658,19 @@ def manapool_offers(source, rows, links):
     return str((meta.get("meta") or {}).get("as_of") or "")
 
 
-def cardtrader_offers(source, token, rows, links, minutes=CARDTRADER_MINUTES):
+def cardtrader_offers(source, token, rows, links, minutes=CARDTRADER_MINUTES, resume=0, seen=None):
     """CardTrader's marketplace (the cheapest 25 copies of every card, foil and
     non-foil asked for separately), keeping sellers in Europe and prices in
     euros: ["ct", foil, condition, cents, copies, language, seller's country].
-    `source` is the API, or a folder of saved answers for testing. Reading
-    stops after `minutes`; whatever was read by then is used."""
+    `source` is the API, or a folder of saved answers for testing.
+
+    The sets are read in order of their CardTrader number, starting after
+    `resume` (where the previous day stopped) and going round; reading stops
+    after `minutes`. Returns (time, the last set read). The Scryfall ids of
+    every card in the sets read go into `seen`."""
     print("Reading CardTrader's marketplace...")
     remote = source.startswith(("http://", "https://"))
+    pace = threading.Lock()
     calls = {"t": 0.0}
 
     def get(path, pause=0.06):
@@ -669,18 +678,19 @@ def cardtrader_offers(source, token, rows, links, minutes=CARDTRADER_MINUTES):
             name = path.replace("?", "_").replace("&", "_").replace("=", "-").replace("/", "_") + ".json"
             with open(os.path.join(source, name), encoding="utf-8") as fh:
                 return json.load(fh)
-        for attempt in range(3):
-            wait = calls["t"] + pause - time.time()
-            if wait > 0:
-                time.sleep(wait)
-            calls["t"] = time.time()
+        for attempt in range(4):
+            with pace:   # requests are started at most every `pause` seconds, whatever the threads
+                wait = calls["t"] + pause - time.time()
+                if wait > 0:
+                    time.sleep(wait)
+                calls["t"] = time.time()
             req = urllib.request.Request(source.rstrip("/") + "/" + path, headers=dict(HEADERS, Authorization="Bearer " + token))
             try:
-                with urllib.request.urlopen(req, timeout=120) as resp:
+                with urllib.request.urlopen(req, timeout=180) as resp:
                     return json.loads(resp.read().decode("utf-8"))
             except urllib.error.HTTPError as err:
-                if err.code == 429 and attempt < 2:
-                    time.sleep(10)
+                if err.code == 429 and attempt < 3:
+                    time.sleep(10 * (attempt + 1))
                     continue
                 raise
 
@@ -699,63 +709,81 @@ def cardtrader_offers(source, token, rows, links, minutes=CARDTRADER_MINUTES):
                 print(f"  note: no {cur}-to-euro rate ({err})")
                 to_eur[cur] = None
         return to_eur[cur]
-    expansions = [e for e in get("expansions") if e.get("game_id") == 1]
-    done = 0
-    for exp in expansions:
-        if time.time() - start > minutes * 60:
-            print(f"  stopped after {minutes} minutes ({done} of {len(expansions)} sets read)")
-            break
-        eid = exp.get("id")
-        try:
-            bps = get(f"blueprints/export?expansion_id={eid}")
-            sid_of = {b["id"]: b["scryfall_id"] for b in bps if b.get("scryfall_id") and b.get("id")}
-            if not sid_of:
-                done += 1
-                continue
-            for foil in (0, 1):
-                data = get(f"marketplace/products?expansion_id={eid}&foil={'true' if foil else 'false'}", pause=1.05)
-                for bp_id, products in (data or {}).items():
-                    sid = sid_of.get(int(bp_id))
-                    if not sid:
+
+    def read_set(eid):
+        """(Scryfall id by blueprint, [non-foil answer, foil answer]) of one set."""
+        bps = get(f"blueprints/export?expansion_id={eid}")
+        sid_of = {b["id"]: b["scryfall_id"] for b in bps if b.get("scryfall_id") and b.get("id")}
+        if not sid_of:
+            return sid_of, []
+        return sid_of, [get(f"marketplace/products?expansion_id={eid}&foil={'true' if foil else 'false'}", pause=CARDTRADER_PAUSE)
+                         for foil in (0, 1)]
+
+    def add(sid_of, answers):
+        nonlocal n
+        for foil, data in enumerate(answers):
+            for bp_id, products in (data or {}).items():
+                sid = sid_of.get(int(bp_id))
+                if not sid:
+                    continue
+                for prod in products or []:
+                    props = prod.get("properties_hash") or {}
+                    if prod.get("on_vacation") or prod.get("graded") or props.get("altered") or props.get("signed"):
                         continue
-                    for prod in products or []:
-                        props = prod.get("properties_hash") or {}
-                        if prod.get("on_vacation") or prod.get("graded") or props.get("altered") or props.get("signed"):
-                            continue
-                        country = str((prod.get("user") or {}).get("country_code") or "").upper()
-                        if country not in EUROPE:
-                            skipped[country or "?"] = skipped.get(country or "?", 0) + 1
-                            continue
-                        price = prod.get("price") or {}
-                        cur = str(price.get("currency") or "").upper()
-                        rate = eur_rate(cur) if cur else None
-                        if not rate:
-                            other_cur.add(cur or "?")
-                            continue
-                        c, qty = price.get("cents"), prod.get("quantity") or 0
-                        if isinstance(c, int) and cur != "EUR":
-                            c = int(round(c * rate))
-                        if not isinstance(c, int) or c <= 0 or qty <= 0:
-                            continue
-                        lang = str(props.get("mtg_language") or "en").lower()
-                        lang = "" if lang == "en" else CT_LANGS.get(lang, lang.upper())
-                        is_foil = 1 if props.get("mtg_foil") in (True, "true") else 0 if props.get("mtg_foil") in (False, "false") else foil
-                        cond = CT_CONDITIONS.get(str(props.get("condition") or ""), "")
-                        rows.setdefault(sid, []).append(["ct", is_foil, cond, c, int(qty), lang, country])
-                        links.setdefault(sid, {})["ct"] = int(bp_id)
-                        n += 1
-            done += 1
-        except Exception as err:   # one set going wrong is fine
-            failed += 1
-            print(f"  note: CardTrader set {eid} could not be read ({err})")
+                    country = str((prod.get("user") or {}).get("country_code") or "").upper()
+                    if country not in EUROPE:
+                        skipped[country or "?"] = skipped.get(country or "?", 0) + 1
+                        continue
+                    price = prod.get("price") or {}
+                    cur = str(price.get("currency") or "").upper()
+                    rate = eur_rate(cur) if cur else None
+                    if not rate:
+                        other_cur.add(cur or "?")
+                        continue
+                    c, qty = price.get("cents"), prod.get("quantity") or 0
+                    if isinstance(c, int) and cur != "EUR":
+                        c = int(round(c * rate))
+                    if not isinstance(c, int) or c <= 0 or qty <= 0:
+                        continue
+                    lang = str(props.get("mtg_language") or "en").lower()
+                    lang = "" if lang == "en" else CT_LANGS.get(lang, lang.upper())
+                    is_foil = 1 if props.get("mtg_foil") in (True, "true") else 0 if props.get("mtg_foil") in (False, "false") else foil
+                    cond = CT_CONDITIONS.get(str(props.get("condition") or ""), "")
+                    rows.setdefault(sid, []).append(["ct", is_foil, cond, c, int(qty), lang, country])
+                    links.setdefault(sid, {})["ct"] = int(bp_id)
+                    n += 1
+
+    expansions = sorted((e for e in get("expansions") if e.get("game_id") == 1 and isinstance(e.get("id"), int)), key=lambda e: e["id"])
+    k = next((i for i, e in enumerate(expansions) if e["id"] > resume), 0)
+    order = expansions[k:] + expansions[:k]
+    done, last = 0, resume
+    workers = CARDTRADER_WORKERS if remote else 1
+    with concurrent.futures.ThreadPoolExecutor(workers) as pool:
+        for i in range(0, len(order), workers):
+            if time.time() - start > minutes * 60:
+                print(f"  stopped after {minutes} minutes ({done} of {len(order)} sets read; the next run carries on from there)")
+                break
+            batch = order[i:i + workers]
+            futures = [(e["id"], pool.submit(read_set, e["id"])) for e in batch]
+            for eid, fut in futures:
+                try:
+                    sid_of, answers = fut.result()
+                    add(sid_of, answers)
+                    if seen is not None:
+                        seen.update(sid_of.values())
+                except Exception as err:   # one set going wrong is fine
+                    failed += 1
+                    print(f"  note: CardTrader set {eid} could not be read ({err})")
+                done += 1
+                last = eid
     if other_cur:
-        print(f"  note: prices in {', '.join(sorted(other_cur))} were left out - set the CardTrader account's currency to EUR")
+        print(f"  note: prices in {', '.join(sorted(other_cur))} were left out (no rate to euros)")
     top = sorted(skipped.items(), key=lambda kv: -kv[1])[:8]
     print(f"  {n} offers from sellers in Europe ({done} of {len(expansions)} sets{f', {failed} failed' if failed else ''}); "
           f"left out, by seller country: {dict(top)}")
     if not n:
         raise ValueError("no CardTrader offers found")
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), (0 if done >= len(order) else last)
 
 
 def shop_offers(args, products):
@@ -772,11 +800,39 @@ def shop_offers(args, products):
         except Exception as err:   # the daily update goes on without them
             print(f"  note: {shop}'s offers could not be read ({err}).")
     token = os.environ.get("CARDTRADER_TOKEN", "").strip()
+    resume = 0
     if args.cardtrader or token:
+        prev_index = {}
         try:
-            when["cardtrader"] = cardtrader_offers(args.cardtrader or CARDTRADER_API, token, rows, links, args.cardtrader_minutes)
+            prev_index = load_published(args.previous, "index.json") or {}
+        except Exception:
+            pass
+        seen = set()
+        try:
+            when["cardtrader"], resume = cardtrader_offers(args.cardtrader or CARDTRADER_API, token, rows, links, args.cardtrader_minutes,
+                                                           int(prev_index.get("ct_resume") or 0), seen)
         except Exception as err:
             print(f"  note: CardTrader's offers could not be read ({err}).")
+            resume = int(prev_index.get("ct_resume") or 0)
+        # the sets not read today keep the offers published last time (a day or two old)
+        kept = 0
+        try:
+            for key in (prev_index.get("shards") or []) if prev_index.get("offers", {}).get("cardtrader") else []:
+                old = load_published(args.previous, f"q/{key}.json.gz") or {}
+                for sid, old_rows in (old.get("l") or {}).items():
+                    if sid in seen:
+                        continue
+                    ct = [r for r in old_rows if r and r[0] == "ct"]
+                    if ct and not any(r[0] == "ct" for r in rows.get(sid, [])):
+                        rows.setdefault(sid, []).extend(ct)
+                        if ((old.get("lk") or {}).get(sid) or {}).get("ct"):
+                            links.setdefault(sid, {})["ct"] = old["lk"][sid]["ct"]
+                        kept += 1
+            if kept:
+                print(f"  kept the earlier CardTrader offers of {kept} printings from sets not read today")
+                when.setdefault("cardtrader", prev_index["offers"]["cardtrader"])
+        except Exception as err:
+            print(f"  note: the earlier CardTrader offers could not be read ({err}).")
     for sid, got in rows.items():
         got.sort(key=lambda r: (OFFER_MARKETS.get(r[0], ""), r[1], r[3], -r[4]))
         kept, per = [], {}
@@ -792,7 +848,7 @@ def shop_offers(args, products):
             links.setdefault(sid, {})["tcg"] = pid
         if cm:
             links.setdefault(sid, {})["cm"] = cm
-    return rows, links, when
+    return rows, links, when, resume
 
 
 # ------------------------------------------------------------------ cards
@@ -967,7 +1023,8 @@ def build(args):
             sources.append(CARDTRADER_SOURCE)
     check = source_check(dates, idx, shards, info, quote_data, ids)
     if offers:
-        check["offers"] = {"as_of": offers[2], "printings": len(offers[0]), "rows": sum(len(r) for r in offers[0].values())}
+        check["offers"] = {"as_of": offers[2], "printings": len(offers[0]), "rows": sum(len(r) for r in offers[0].values()),
+                           "cardtrader_printings": sum(1 for r in offers[0].values() if any(x[0] == "ct" for x in r)), "ct_resume": offers[3]}
     mover_data = movers(today, dates, shards, info, (quote_data or ({},))[0])
     check["movers_top"] = {w: {m: {d: [f"{e['n']} ({e['s']}) {e['then']}->{e['now']} {e['pct']}%" for e in blk[m][d][:5]]
                                    for d in ("up", "down")} for m in MARKETS} for w, blk in mover_data.items()}
@@ -1107,7 +1164,7 @@ def write_output(out, today, dates, shards, mover_data, sources=None, backfill_t
                 gz.write(payload)
         total += os.path.getsize(os.path.join(out, "h", f"{key}.json.gz"))
     quotes_date, providers = "", {}
-    rows, links, offers_when = offers or ({}, {}, {})
+    rows, links, offers_when, ct_resume = offers or ({}, {}, {}, 0)
     if quote_data or rows:
         quotes, providers, quotes_date = quote_data or ({}, {}, today)
         os.makedirs(os.path.join(out, "q"), exist_ok=True)
@@ -1138,6 +1195,8 @@ def write_output(out, today, dates, shards, mover_data, sources=None, backfill_t
             meta["providers"] = providers
         if rows:
             meta["offers"] = offers_when
+        if ct_resume:
+            meta["ct_resume"] = ct_resume
         if backfill_tried:
             meta["backfill_tried"] = backfill_tried
         json.dump(meta, fh, separators=(",", ":"))
