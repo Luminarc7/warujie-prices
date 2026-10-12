@@ -68,6 +68,7 @@ LISTINGS_PER_FINISH = 12    # offers kept per printing, market and finish (the c
 CARDTRADER_API = "https://api.cardtrader.com/api/v2"                    # needs a CardTrader account's API token (CARDTRADER_TOKEN)
 CARDTRADER_SOURCE = "CardTrader (offers by condition, with stock, from sellers in Europe; CardTrader API)"
 CARDTRADER_MINUTES = 40     # time allowed for reading CardTrader's marketplace each day
+FX_TO_EUR = "https://api.frankfurter.dev/v2/rate/{cur}/EUR"           # the European Central Bank's rate, for CardTrader prices not in euros
 CT_CONDITIONS = {"Mint": "M", "Near Mint": "NM", "Slightly Played": "SP", "Moderately Played": "MP",
                  "Played": "PL", "Heavily Played": "HP", "Poor": "PO"}
 CT_LANGS = {"jp": "JA", "ja": "JA", "kr": "KO", "ko": "KO", "zh-cn": "CS", "zh-tw": "CT"}
@@ -684,6 +685,20 @@ def cardtrader_offers(source, token, rows, links, minutes=CARDTRADER_MINUTES):
                 raise
 
     start, n, skipped, failed, other_cur = time.time(), 0, {}, 0, set()
+    to_eur = {"EUR": 1.0}   # CardTrader gives prices in the account's currency: others are converted at the ECB rate
+
+    def eur_rate(cur):
+        if cur not in to_eur:
+            try:
+                if not remote:
+                    raise ValueError("no rates when testing")
+                with http_get(FX_TO_EUR.format(cur=cur)) as resp:
+                    to_eur[cur] = float(json.load(resp)["rate"])
+                print(f"  CardTrader prices are in {cur}: converted to euros at {to_eur[cur]}")
+            except Exception as err:
+                print(f"  note: no {cur}-to-euro rate ({err})")
+                to_eur[cur] = None
+        return to_eur[cur]
     expansions = [e for e in get("expansions") if e.get("game_id") == 1]
     done = 0
     for exp in expansions:
@@ -712,10 +727,14 @@ def cardtrader_offers(source, token, rows, links, minutes=CARDTRADER_MINUTES):
                             skipped[country or "?"] = skipped.get(country or "?", 0) + 1
                             continue
                         price = prod.get("price") or {}
-                        if str(price.get("currency") or "").upper() != "EUR":
-                            other_cur.add(str(price.get("currency")))
+                        cur = str(price.get("currency") or "").upper()
+                        rate = eur_rate(cur) if cur else None
+                        if not rate:
+                            other_cur.add(cur or "?")
                             continue
                         c, qty = price.get("cents"), prod.get("quantity") or 0
+                        if isinstance(c, int) and cur != "EUR":
+                            c = int(round(c * rate))
                         if not isinstance(c, int) or c <= 0 or qty <= 0:
                             continue
                         lang = str(props.get("mtg_language") or "en").lower()
