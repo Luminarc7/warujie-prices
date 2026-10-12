@@ -3,27 +3,10 @@
 few example cards (to choose the roles for the site's role search)."""
 import json, os, time, urllib.parse, urllib.request, urllib.error
 H = {"User-Agent": "WarujiePriceHistory/1.1 (+https://github.com/Luminarc7/warujie-prices)", "Accept": "application/json"}
-CANDIDATES = """creates-token creates-tokens create-tokens token-creator token-generation token-producer makes-tokens synergy-token token-maker-creature
-buff-power buff-strength buff-temporary pump-spell combat-trick power-pump
-control-steal steal-permanent control-change gain-control-of mind-control control-magic theft
-stone-rain mass-land-destruction land-destruction-mass
-etb etb-effect enters-trigger etb-trigger-self ltb ltb-trigger leaves-trigger
-discard-opponent targeted-discard hand-attack discard-target opponent-discard
-mill-opponent mill-target mill-player
-lifegain-matters gain-life-matters
-counter-creature counterspell-creature counterspell-noncreature
-mana-sink cost-reduction treasure synergy-treasure food clue
-wrath-creature boardwipe-creature boardwipe-nonland
-banish banish-creature exile-removal doomblade
-pinger ping
-mana-fixing fixing land-fetch
-alternate-win-condition win-condition wincon
-graveyard-recursion recursion-artifact recursion-land
-reanimate-creature reanimate-self
-protection-creature hexproof-granter gives-hexproof gives-indestructible
-flash-enabler gives-flash
-copy-permanent token-copy
-removal-exile removal-destroy removal-bounce removal-damage removal-sacrifice removal-minus""".split()
+CANDIDATES = """buff-temporary buff-power buff-strength buff-toughness combat-trick gives-hexproof gives-indestructible exchange-control control-changing-effects
+fixing hand-disruption discard-hand counterspell-creature counterspell-noncreature hard-counter combat-ping death-trigger-self deathtrigger
+token-generator tokens-matter token-creation repeatable-token-generator creates-token-of-a-card makes-creature-tokens
+cheat-into-play theft threaten gives-evasion gives-haste hatebear fetchland bounce-land copy-spell clone wheel impulse-draw loot rummage""".split()
 out = {}
 for slug in CANDIDATES:
     q = f"otag:{slug}"
@@ -38,6 +21,6 @@ for slug in CANDIDATES:
         except Exception:
             body = {}
         out[slug] = {"n": 0, "status": err.code, "details": body.get("details"), "warn": body.get("warnings")}
-    time.sleep(0.12)
+    time.sleep(0.7)
 os.makedirs("tools/probe", exist_ok=True)
 json.dump(out, open("tools/probe/tags.json", "w"), indent=1)
