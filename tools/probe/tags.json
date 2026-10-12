@@ -1,0 +1,1622 @@
+{
+ "removal": {
+  "n": 6451,
+  "ex": [
+   "Swords to Plowshares",
+   "Path to Exile",
+   "Blasphemous Act",
+   "Beast Within",
+   "Chaos Warp",
+   "Cyclonic Rift",
+   "Generous Gift",
+   "Toxic Deluge"
+  ],
+  "warn": null
+ },
+ "creature-removal": {
+  "n": 5513,
+  "ex": [
+   "Swords to Plowshares",
+   "Path to Exile",
+   "Blasphemous Act",
+   "Beast Within",
+   "Chaos Warp",
+   "Cyclonic Rift",
+   "Generous Gift",
+   "Toxic Deluge"
+  ],
+  "warn": null
+ },
+ "artifact-removal": {
+  "n": 1190,
+  "ex": [
+   "Beast Within",
+   "Chaos Warp",
+   "Cyclonic Rift",
+   "Generous Gift",
+   "Boseiju, Who Endures",
+   "Otawara, Soaring City",
+   "Vandalblast",
+   "Assassin's Trophy"
+  ],
+  "warn": null
+ },
+ "enchantment-removal": {
+  "n": 1038,
+  "ex": [
+   "Beast Within",
+   "Chaos Warp",
+   "Cyclonic Rift",
+   "Generous Gift",
+   "Boseiju, Who Endures",
+   "Otawara, Soaring City",
+   "Feed the Swarm",
+   "Assassin's Trophy"
+  ],
+  "warn": null
+ },
+ "planeswalker-removal": {
+  "n": 1960,
+  "ex": [
+   "Beast Within",
+   "Chaos Warp",
+   "Cyclonic Rift",
+   "Generous Gift",
+   "Otawara, Soaring City",
+   "Assassin's Trophy",
+   "Anguished Unmaking",
+   "Lightning Bolt"
+  ],
+  "warn": null
+ },
+ "land-removal": {
+  "n": 509,
+  "ex": [
+   "Beast Within",
+   "Chaos Warp",
+   "Generous Gift",
+   "Boseiju, Who Endures",
+   "Assassin's Trophy",
+   "Demolition Field",
+   "Strip Mine",
+   "Sundering Eruption // Volcanic Fissure"
+  ],
+  "warn": null
+ },
+ "removal-creature": {
+  "n": 5513,
+  "ex": [
+   "Swords to Plowshares",
+   "Path to Exile",
+   "Blasphemous Act",
+   "Beast Within",
+   "Chaos Warp",
+   "Cyclonic Rift",
+   "Generous Gift",
+   "Toxic Deluge"
+  ],
+  "warn": null
+ },
+ "removal-artifact": {
+  "n": 1190,
+  "ex": [
+   "Beast Within",
+   "Chaos Warp",
+   "Cyclonic Rift",
+   "Generous Gift",
+   "Boseiju, Who Endures",
+   "Otawara, Soaring City",
+   "Vandalblast",
+   "Assassin's Trophy"
+  ],
+  "warn": null
+ },
+ "removal-enchantment": {
+  "n": 1038,
+  "ex": [
+   "Beast Within",
+   "Chaos Warp",
+   "Cyclonic Rift",
+   "Generous Gift",
+   "Boseiju, Who Endures",
+   "Otawara, Soaring City",
+   "Feed the Swarm",
+   "Assassin's Trophy"
+  ],
+  "warn": null
+ },
+ "removal-planeswalker": {
+  "n": 1960,
+  "ex": [
+   "Beast Within",
+   "Chaos Warp",
+   "Cyclonic Rift",
+   "Generous Gift",
+   "Otawara, Soaring City",
+   "Assassin's Trophy",
+   "Anguished Unmaking",
+   "Lightning Bolt"
+  ],
+  "warn": null
+ },
+ "removal-land": {
+  "n": 509,
+  "ex": [
+   "Beast Within",
+   "Chaos Warp",
+   "Generous Gift",
+   "Boseiju, Who Endures",
+   "Assassin's Trophy",
+   "Demolition Field",
+   "Strip Mine",
+   "Sundering Eruption // Volcanic Fissure"
+  ],
+  "warn": null
+ },
+ "removal-any": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "removal-permanent": {
+  "n": 201,
+  "ex": [
+   "Beast Within",
+   "Chaos Warp",
+   "Generous Gift",
+   "Assassin's Trophy",
+   "Liliana, Dreadhorde General",
+   "Kozilek, Butcher of Truth",
+   "Vindicate",
+   "Artisan of Kozilek"
+  ],
+  "warn": null
+ },
+ "spot-removal": {
+  "n": 5402,
+  "ex": [
+   "Swords to Plowshares",
+   "Path to Exile",
+   "Beast Within",
+   "Chaos Warp",
+   "Cyclonic Rift",
+   "Generous Gift",
+   "Boseiju, Who Endures",
+   "Otawara, Soaring City"
+  ],
+  "warn": null
+ },
+ "hard-removal": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "soft-removal": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "boardwipe": {
+  "n": 945,
+  "ex": [
+   "Blasphemous Act",
+   "Cyclonic Rift",
+   "Toxic Deluge",
+   "Vandalblast",
+   "Austere Command",
+   "Farewell",
+   "Aetherize",
+   "Damn"
+  ],
+  "warn": null
+ },
+ "sweeper": {
+  "n": 945,
+  "ex": [
+   "Blasphemous Act",
+   "Cyclonic Rift",
+   "Toxic Deluge",
+   "Vandalblast",
+   "Austere Command",
+   "Farewell",
+   "Aetherize",
+   "Damn"
+  ],
+  "warn": null
+ },
+ "wrath": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "board-wipe": {
+  "n": 945,
+  "ex": [
+   "Blasphemous Act",
+   "Cyclonic Rift",
+   "Toxic Deluge",
+   "Vandalblast",
+   "Austere Command",
+   "Farewell",
+   "Aetherize",
+   "Damn"
+  ],
+  "warn": null
+ },
+ "mass-removal": {
+  "n": 945,
+  "ex": [
+   "Blasphemous Act",
+   "Cyclonic Rift",
+   "Toxic Deluge",
+   "Vandalblast",
+   "Austere Command",
+   "Farewell",
+   "Aetherize",
+   "Damn"
+  ],
+  "warn": null
+ },
+ "creature-sweeper": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "counterspell": {
+  "n": 550,
+  "ex": [
+   "Counterspell",
+   "An Offer You Can't Refuse",
+   "Arcane Denial",
+   "Negate",
+   "Swan Song",
+   "Fierce Guardianship",
+   "Mana Drain",
+   "Sink into Stupor // Soporific Springs"
+  ],
+  "warn": null
+ },
+ "soft-counter": {
+  "n": 140,
+  "ex": [
+   "Flusterstorm",
+   "Spell Pierce",
+   "Mystic Confluence",
+   "Stubborn Denial",
+   "Izzet Charm",
+   "Mana Leak",
+   "Mana Tithe",
+   "Jwari Disruption // Jwari Ruins"
+  ],
+  "warn": null
+ },
+ "hard-counter": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "draw": {
+  "n": 4251,
+  "ex": [
+   "Mind Stone",
+   "Skullclamp",
+   "Solemn Simulacrum",
+   "Rhystic Study",
+   "Arcane Denial",
+   "Commander's Sphere",
+   "Brainstorm",
+   "Esper Sentinel"
+  ],
+  "warn": null
+ },
+ "card-draw": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "draw-card": {
+  "n": 3278,
+  "ex": [
+   "Mind Stone",
+   "Skullclamp",
+   "Solemn Simulacrum",
+   "Rhystic Study",
+   "Arcane Denial",
+   "Commander's Sphere",
+   "Brainstorm",
+   "Esper Sentinel"
+  ],
+  "warn": null
+ },
+ "card-advantage": {
+  "n": 6208,
+  "ex": [
+   "Mind Stone",
+   "Skullclamp",
+   "Solemn Simulacrum",
+   "Rhystic Study",
+   "Arcane Denial",
+   "Commander's Sphere",
+   "Brainstorm",
+   "Esper Sentinel"
+  ],
+  "warn": null
+ },
+ "cantrip": {
+  "n": 654,
+  "ex": [
+   "Brainstorm",
+   "Garruk's Uprising",
+   "Ponder",
+   "Preordain",
+   "Opt",
+   "Explore",
+   "Growth Spiral",
+   "Baleful Strix"
+  ],
+  "warn": null
+ },
+ "wheel": {
+  "n": 149,
+  "ex": [
+   "Windfall",
+   "Valakut Awakening // Valakut Stoneforge",
+   "Wheel of Fortune",
+   "Midnight Clock",
+   "Magus of the Wheel",
+   "Wheel of Misfortune",
+   "Dark Deal",
+   "Brass's Tunnel-Grinder // Tecutlan, the Searing Rift"
+  ],
+  "warn": null
+ },
+ "impulse": {
+  "n": 566,
+  "ex": [
+   "Thassa's Oracle",
+   "Ripples of Undeath",
+   "Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun",
+   "Six",
+   "Dig Through Time",
+   "Fact or Fiction",
+   "Loot, Exuberant Explorer",
+   "Expressive Iteration"
+  ],
+  "warn": null
+ },
+ "impulse-draw": {
+  "n": 269,
+  "ex": [
+   "Jeska's Will",
+   "Professional Face-Breaker",
+   "Birgi, God of Storytelling // Harnfel, Horn of Bounty",
+   "Urza, Lord High Artificer",
+   "Expressive Iteration",
+   "Light Up the Stage",
+   "Laelia, the Blade Reforged",
+   "Atsushi, the Blazing Sky"
+  ],
+  "warn": null
+ },
+ "loot": {
+  "n": 416,
+  "ex": [
+   "Faithless Looting",
+   "Frantic Search",
+   "Geier Reach Sanitarium",
+   "Greater Good",
+   "Ledger Shredder",
+   "Cephalid Coliseum",
+   "Pull from Tomorrow",
+   "Mask of Memory"
+  ],
+  "warn": null
+ },
+ "looter": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "rummage": {
+  "n": 282,
+  "ex": [
+   "Big Score",
+   "Thrill of Possibility",
+   "Unexpected Windfall",
+   "Demand Answers",
+   "Seize the Spoils",
+   "Cathartic Reunion",
+   "Key to the City",
+   "Grab the Prize"
+  ],
+  "warn": null
+ },
+ "rummager": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "ramp": {
+  "n": 2287,
+  "ex": [
+   "Sol Ring",
+   "Arcane Signet",
+   "Path to Exile",
+   "Fellwar Stone",
+   "Cultivate",
+   "Thought Vessel",
+   "Farseek",
+   "Nature's Lore"
+  ],
+  "warn": null
+ },
+ "mana-ramp": {
+  "n": 2287,
+  "ex": [
+   "Sol Ring",
+   "Arcane Signet",
+   "Path to Exile",
+   "Fellwar Stone",
+   "Cultivate",
+   "Thought Vessel",
+   "Farseek",
+   "Nature's Lore"
+  ],
+  "warn": null
+ },
+ "land-ramp": {
+  "n": 621,
+  "ex": [
+   "Path to Exile",
+   "Cultivate",
+   "Farseek",
+   "Nature's Lore",
+   "Rampant Growth",
+   "Myriad Landscape",
+   "Kodama's Reach",
+   "Three Visits"
+  ],
+  "warn": null
+ },
+ "mana-dork": {
+  "n": 441,
+  "ex": [
+   "Birds of Paradise",
+   "Llanowar Elves",
+   "Elvish Mystic",
+   "Delighted Halfling",
+   "Tireless Provisioner",
+   "Fyndhorn Elves",
+   "Ornithopter of Paradise",
+   "Bloom Tender"
+  ],
+  "warn": null
+ },
+ "mana-rock": {
+  "n": 384,
+  "ex": [
+   "Sol Ring",
+   "Arcane Signet",
+   "Fellwar Stone",
+   "Thought Vessel",
+   "Mind Stone",
+   "Commander's Sphere",
+   "Chromatic Lantern",
+   "Talisman of Dominance"
+  ],
+  "warn": null
+ },
+ "mana-producer": {
+  "n": 958,
+  "ex": [
+   "Sol Ring",
+   "Arcane Signet",
+   "Fellwar Stone",
+   "Thought Vessel",
+   "Mind Stone",
+   "Birds of Paradise",
+   "Commander's Sphere",
+   "Llanowar Elves"
+  ],
+  "warn": null
+ },
+ "mana-ramp-land": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "adds-multiple-mana": {
+  "n": 511,
+  "ex": [
+   "Sol Ring",
+   "Dark Ritual",
+   "Ancient Tomb",
+   "Temple of the False God",
+   "Jeska's Will",
+   "Mana Drain",
+   "Ashnod's Altar",
+   "Mana Vault"
+  ],
+  "warn": null
+ },
+ "cost-reducer": {
+  "n": 346,
+  "ex": [
+   "Herald's Horn",
+   "Foundry Inspector",
+   "Jet Medallion",
+   "Ruby Medallion",
+   "Urza's Incubator",
+   "Sapphire Medallion",
+   "Etherium Sculptor",
+   "Pearl Medallion"
+  ],
+  "warn": null
+ },
+ "mana-doubler": {
+  "n": 57,
+  "ex": [
+   "Wild Growth",
+   "Utopia Sprawl",
+   "Crypt Ghast",
+   "Mirari's Wake",
+   "High Tide",
+   "Forsaken Monument",
+   "Caged Sun",
+   "Nyxbloom Ancient"
+  ],
+  "warn": null
+ },
+ "tutor": {
+  "n": 1164,
+  "ex": [
+   "Path to Exile",
+   "Evolving Wilds",
+   "Cultivate",
+   "Farseek",
+   "Nature's Lore",
+   "Rampant Growth",
+   "Terramorphic Expanse",
+   "Myriad Landscape"
+  ],
+  "warn": null
+ },
+ "tutor-land": {
+  "n": 593,
+  "ex": [
+   "Path to Exile",
+   "Evolving Wilds",
+   "Cultivate",
+   "Farseek",
+   "Nature's Lore",
+   "Rampant Growth",
+   "Terramorphic Expanse",
+   "Myriad Landscape"
+  ],
+  "warn": null
+ },
+ "tutor-creature": {
+  "n": 206,
+  "ex": [
+   "Worldly Tutor",
+   "Finale of Devastation",
+   "Buried Alive",
+   "Chord of Calling",
+   "Green Sun's Zenith",
+   "Archdruid's Charm",
+   "Imperial Recruiter",
+   "Eldritch Evolution"
+  ],
+  "warn": null
+ },
+ "tutor-artifact": {
+  "n": 71,
+  "ex": [
+   "Urza's Saga",
+   "Enlightened Tutor",
+   "Inventors' Fair",
+   "Fabricate",
+   "Open the Armory",
+   "Steelshaper's Gift",
+   "Stoneforge Mystic",
+   "Tezzeret, Cruel Captain"
+  ],
+  "warn": null
+ },
+ "tutor-enchantment": {
+  "n": 36,
+  "ex": [
+   "Enlightened Tutor",
+   "Open the Armory",
+   "Idyllic Tutor",
+   "Sterling Grove",
+   "Moon-Blessed Cleric",
+   "Zur the Enchanter",
+   "Light-Paws, Emperor's Voice",
+   "Kellan, the Fae-Blooded // Birthright Boon"
+  ],
+  "warn": null
+ },
+ "tutor-instant": {
+  "n": 24,
+  "ex": [
+   "Mystical Tutor",
+   "Solve the Equation",
+   "Spellseeker",
+   "Waterlogged Teachings // Inundated Archive",
+   "Sunforger",
+   "Merchant Scroll",
+   "Bring to Light",
+   "Sanar, Unfinished Genius // Wild Idea"
+  ],
+  "warn": null
+ },
+ "tutor-sorcery": {
+  "n": 18,
+  "ex": [
+   "Mystical Tutor",
+   "Solve the Equation",
+   "Spellseeker",
+   "Personal Tutor",
+   "Bring to Light",
+   "Sanar, Unfinished Genius // Wild Idea",
+   "Micromancer",
+   "Invasion of Arcavios // Invocation of the Founders"
+  ],
+  "warn": null
+ },
+ "tutor-any": {
+  "n": 101,
+  "ex": [
+   "Demonic Tutor",
+   "Vampiric Tutor",
+   "Gamble",
+   "Diabolic Intent",
+   "Entomb",
+   "Diabolic Tutor",
+   "Wishclaw Talisman",
+   "Imperial Seal"
+  ],
+  "warn": null
+ },
+ "land-tutor": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "graveyard-hate": {
+  "n": 419,
+  "ex": [
+   "Bojuka Bog",
+   "Farewell",
+   "Scavenger Grounds",
+   "Rakdos Charm",
+   "Dauthi Voidwalker",
+   "Deathrite Shaman",
+   "Boggart Trawler // Boggart Bog",
+   "Return to Nature"
+  ],
+  "warn": null
+ },
+ "reanimate": {
+  "n": 1060,
+  "ex": [
+   "Reanimate",
+   "Victimize",
+   "Animate Dead",
+   "Finale of Devastation",
+   "Sun Titan",
+   "Sevinne's Reclamation",
+   "Underworld Breach",
+   "Living Death"
+  ],
+  "warn": null
+ },
+ "reanimation": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "reanimator": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "creature-reanimation": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "recursion": {
+  "n": 2245,
+  "ex": [
+   "Reanimate",
+   "Eternal Witness",
+   "Victimize",
+   "Mystic Sanctuary",
+   "Buried Ruin",
+   "Animate Dead",
+   "Takenuma, Abandoned Mire",
+   "Finale of Devastation"
+  ],
+  "warn": null
+ },
+ "regrowth": {
+  "n": 673,
+  "ex": [
+   "Eternal Witness",
+   "Buried Ruin",
+   "Takenuma, Abandoned Mire",
+   "Bala Ged Recovery // Bala Ged Sanctuary",
+   "Pinnacle Monk // Mystic Peak",
+   "Life from the Loam",
+   "Scrap Trawler",
+   "Myr Retriever"
+  ],
+  "warn": null
+ },
+ "recursion-creature": {
+  "n": 875,
+  "ex": [
+   "Reanimate",
+   "Victimize",
+   "Animate Dead",
+   "Takenuma, Abandoned Mire",
+   "Finale of Devastation",
+   "Living Death",
+   "Rise of the Dark Realms",
+   "Dread Return"
+  ],
+  "warn": null
+ },
+ "blink": {
+  "n": 198,
+  "ex": [
+   "Ephemerate",
+   "Conjurer's Closet",
+   "Displacer Kitten",
+   "Ghostly Flicker",
+   "Cloudshift",
+   "Sword of Hearth and Home",
+   "Essence Flux",
+   "Teleportation Circle"
+  ],
+  "warn": null
+ },
+ "flicker": {
+  "n": 198,
+  "ex": [
+   "Ephemerate",
+   "Conjurer's Closet",
+   "Displacer Kitten",
+   "Ghostly Flicker",
+   "Cloudshift",
+   "Sword of Hearth and Home",
+   "Essence Flux",
+   "Teleportation Circle"
+  ],
+  "warn": null
+ },
+ "flicker-creature": {
+  "n": 155,
+  "ex": [
+   "Ephemerate",
+   "Conjurer's Closet",
+   "Displacer Kitten",
+   "Ghostly Flicker",
+   "Cloudshift",
+   "Sword of Hearth and Home",
+   "Essence Flux",
+   "Teleportation Circle"
+  ],
+  "warn": null
+ },
+ "sacrifice-outlet": {
+  "n": 1484,
+  "ex": [
+   "Victimize",
+   "Deadly Dispute",
+   "Ashnod's Altar",
+   "Phyrexian Tower",
+   "Village Rites",
+   "Professional Face-Breaker",
+   "Crop Rotation",
+   "Harrow"
+  ],
+  "warn": null
+ },
+ "sac-outlet": {
+  "n": 1484,
+  "ex": [
+   "Victimize",
+   "Deadly Dispute",
+   "Ashnod's Altar",
+   "Phyrexian Tower",
+   "Village Rites",
+   "Professional Face-Breaker",
+   "Crop Rotation",
+   "Harrow"
+  ],
+  "warn": null
+ },
+ "free-sac-outlet": {
+  "n": 187,
+  "ex": [
+   "Ashnod's Altar",
+   "Professional Face-Breaker",
+   "Viscera Seer",
+   "Phyrexian Altar",
+   "Goblin Bombardment",
+   "Carrion Feeder",
+   "Greater Good",
+   "Altar of Dementia"
+  ],
+  "warn": null
+ },
+ "free-sacrifice-outlet": {
+  "n": 187,
+  "ex": [
+   "Ashnod's Altar",
+   "Professional Face-Breaker",
+   "Viscera Seer",
+   "Phyrexian Altar",
+   "Goblin Bombardment",
+   "Carrion Feeder",
+   "Greater Good",
+   "Altar of Dementia"
+  ],
+  "warn": null
+ },
+ "discard": {
+  "n": 589,
+  "ex": [
+   "Geier Reach Sanitarium",
+   "Sword of Feast and Famine",
+   "Wheel of Fortune",
+   "Torment of Hailfire",
+   "Plaguecrafter",
+   "Cephalid Coliseum",
+   "Archon of Cruelty",
+   "Syphon Mind"
+  ],
+  "warn": null
+ },
+ "hand-disruption": {
+  "n": 708,
+  "ex": [
+   "Geier Reach Sanitarium",
+   "Sword of Feast and Famine",
+   "Wheel of Fortune",
+   "Torment of Hailfire",
+   "Plaguecrafter",
+   "Cephalid Coliseum",
+   "Archon of Cruelty",
+   "Syphon Mind"
+  ],
+  "warn": null
+ },
+ "discard-outlet": {
+  "n": 1326,
+  "ex": [
+   "Faithless Looting",
+   "Frantic Search",
+   "Big Score",
+   "Windfall",
+   "Thrill of Possibility",
+   "Gamble",
+   "Mox Diamond",
+   "Unexpected Windfall"
+  ],
+  "warn": null
+ },
+ "burn": {
+  "n": 3038,
+  "ex": [
+   "Blasphemous Act",
+   "Abrade",
+   "Lightning Bolt",
+   "Boros Charm",
+   "Impact Tremors",
+   "Orcish Bowmasters",
+   "Syr Konrad, the Grim",
+   "Rakdos Charm"
+  ],
+  "warn": null
+ },
+ "burn-any": {
+  "n": 849,
+  "ex": [
+   "Lightning Bolt",
+   "Orcish Bowmasters",
+   "Aetherflux Reservoir",
+   "Walking Ballista",
+   "Goblin Bombardment",
+   "Terror of the Peaks",
+   "Mayhem Devil",
+   "Grapeshot"
+  ],
+  "warn": null
+ },
+ "burn-creature": {
+  "n": 2259,
+  "ex": [
+   "Blasphemous Act",
+   "Abrade",
+   "Lightning Bolt",
+   "Orcish Bowmasters",
+   "Aetherflux Reservoir",
+   "Eiganjo, Seat of the Empire",
+   "Walking Ballista",
+   "Goblin Bombardment"
+  ],
+  "warn": null
+ },
+ "burn-player": {
+  "n": 1816,
+  "ex": [
+   "Lightning Bolt",
+   "Boros Charm",
+   "Impact Tremors",
+   "Orcish Bowmasters",
+   "Syr Konrad, the Grim",
+   "Rakdos Charm",
+   "Aetherflux Reservoir",
+   "Guttersnipe"
+  ],
+  "warn": null
+ },
+ "lifegain": {
+  "n": 2598,
+  "ex": [
+   "Swords to Plowshares",
+   "Blood Artist",
+   "Tireless Provisioner",
+   "Akroma's Will",
+   "The Great Henge",
+   "Zulaport Cutthroat",
+   "Gray Merchant of Asphodel",
+   "Basilisk Collar"
+  ],
+  "warn": null
+ },
+ "gain-life": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "life-gain": {
+  "n": 2598,
+  "ex": [
+   "Swords to Plowshares",
+   "Blood Artist",
+   "Tireless Provisioner",
+   "Akroma's Will",
+   "The Great Henge",
+   "Zulaport Cutthroat",
+   "Gray Merchant of Asphodel",
+   "Basilisk Collar"
+  ],
+  "warn": null
+ },
+ "token-generator": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "tokens": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "create-token": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "creature-token-generator": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "token-maker": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "treasure-maker": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "makes-treasure": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "pump": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "anthem": {
+  "n": 537,
+  "ex": [
+   "Patchwork Banner",
+   "Vanquisher's Banner",
+   "Unnatural Growth",
+   "Beastmaster Ascension",
+   "Banner of Kinship",
+   "Caretaker's Talent",
+   "Intangible Virtue",
+   "Mirari's Wake"
+  ],
+  "warn": null
+ },
+ "lord": {
+  "n": 537,
+  "ex": [
+   "Patchwork Banner",
+   "Vanquisher's Banner",
+   "Unnatural Growth",
+   "Beastmaster Ascension",
+   "Banner of Kinship",
+   "Caretaker's Talent",
+   "Intangible Virtue",
+   "Mirari's Wake"
+  ],
+  "warn": null
+ },
+ "evasion": {
+  "n": 5455,
+  "ex": [
+   "Birds of Paradise",
+   "Swan Song",
+   "Professional Face-Breaker",
+   "Ornithopter of Paradise",
+   "Mirkwood Bats",
+   "Faerie Mastermind",
+   "Baleful Strix",
+   "Goldspan Dragon"
+  ],
+  "warn": null
+ },
+ "gives-evasion": {
+  "n": 1120,
+  "ex": [
+   "Rogue's Passage",
+   "Akroma's Will",
+   "Whispersilk Cloak",
+   "Commander's Plate",
+   "Mother of Runes",
+   "Sword of Feast and Famine",
+   "Brotherhood Regalia",
+   "Champion of Lambholt"
+  ],
+  "warn": null
+ },
+ "clone": {
+  "n": 71,
+  "ex": [
+   "Phyrexian Metamorph",
+   "Spark Double",
+   "Cursed Mirror",
+   "Sculpting Steel",
+   "Mockingbird",
+   "Vesuva",
+   "Sakashima of a Thousand Faces",
+   "Mirrormade"
+  ],
+  "warn": null
+ },
+ "copy": {
+  "n": 1018,
+  "ex": [
+   "Scute Swarm",
+   "Flusterstorm",
+   "Phyrexian Metamorph",
+   "Sevinne's Reclamation",
+   "Shifting Woodland",
+   "Spark Double",
+   "Helm of the Host",
+   "Fanatic of Rhonas"
+  ],
+  "warn": null
+ },
+ "copy-spell": {
+  "n": 195,
+  "ex": [
+   "Return the Favor",
+   "Dualcaster Mage",
+   "Reflections of Littjara",
+   "Narset's Reversal",
+   "Flare of Duplication",
+   "Wandering Archaic // Explore the Vastlands",
+   "Thousand-Year Storm",
+   "Reverberate"
+  ],
+  "warn": null
+ },
+ "edict": {
+  "n": 434,
+  "ex": [
+   "Braids, Arisen Nightmare",
+   "Living Death",
+   "Accursed Marauder",
+   "Blasphemous Edict",
+   "Grave Pact",
+   "Torment of Hailfire",
+   "Plaguecrafter",
+   "Sheoldred, Whispering One"
+  ],
+  "warn": null
+ },
+ "forced-sacrifice": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "mill": {
+  "n": 1294,
+  "ex": [
+   "Takenuma, Abandoned Mire",
+   "Syr Konrad, the Grim",
+   "Etali, Primal Storm",
+   "Ragavan, Nimble Pilferer",
+   "Consider",
+   "Mystic Forge",
+   "Undercity Sewers",
+   "Underground Mortuary"
+  ],
+  "warn": null
+ },
+ "self-mill": {
+  "n": 1061,
+  "ex": [
+   "Takenuma, Abandoned Mire",
+   "Syr Konrad, the Grim",
+   "Consider",
+   "Undercity Sewers",
+   "Underground Mortuary",
+   "Ripples of Undeath",
+   "Hedge Maze",
+   "Raucous Theater"
+  ],
+  "warn": null
+ },
+ "drain": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "drain-life": {
+  "n": 423,
+  "ex": [
+   "Blood Artist",
+   "Zulaport Cutthroat",
+   "Gray Merchant of Asphodel",
+   "Exsanguinate",
+   "Bastion of Remembrance",
+   "Blind Obedience",
+   "Crypt Ghast",
+   "Elas il-Kor, Sadistic Pilgrim"
+  ],
+  "warn": null
+ },
+ "land-destruction": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "bounce": {
+  "n": 928,
+  "ex": [
+   "Cyclonic Rift",
+   "Otawara, Soaring City",
+   "Sink into Stupor // Soporific Springs",
+   "Snap",
+   "Hullbreaker Horror",
+   "Ragavan, Nimble Pilferer",
+   "Aetherize",
+   "Simic Growth Chamber"
+  ],
+  "warn": null
+ },
+ "tapper": {
+  "n": 721,
+  "ex": [
+   "Authority of the Consuls",
+   "Dispatch",
+   "Blind Obedience",
+   "Staff of Domination",
+   "Charismatic Conqueror",
+   "Thassa, Deep-Dwelling",
+   "Koma, Cosmos Serpent",
+   "Thalia, Heretic Cathar"
+  ],
+  "warn": null
+ },
+ "untapper": {
+  "n": 763,
+  "ex": [
+   "Frantic Search",
+   "Mana Vault",
+   "Snap",
+   "Seedborn Muse",
+   "Bender's Waterskin",
+   "Sword of Feast and Famine",
+   "Unwinding Clock",
+   "Maze of Ith"
+  ],
+  "warn": null
+ },
+ "extra-turn": {
+  "n": 58,
+  "ex": [
+   "Final Fortune",
+   "Emrakul, the Promised End",
+   "Time Warp",
+   "Teferi, Master of Time",
+   "Rise of the Eldrazi",
+   "Nexus of Fate",
+   "Perch Protection",
+   "Expropriate"
+  ],
+  "warn": null
+ },
+ "extra-combat-phase": {
+  "n": 45,
+  "ex": [
+   "Aggravated Assault",
+   "Aurelia, the Warleader",
+   "Moraug, Fury of Akoum",
+   "Combat Celebrant",
+   "Karlach, Fury of Avernus",
+   "Genji Glove",
+   "Great Train Heist",
+   "Scourge of the Throne"
+  ],
+  "warn": null
+ },
+ "threaten": {
+  "n": 130,
+  "ex": [
+   "Treasure Nabber",
+   "Seize the Spotlight",
+   "Insurrection",
+   "Zealous Conscripts",
+   "Flayer of Loyalties",
+   "Mob Rule",
+   "Dihada, Binder of Wills",
+   "Captivating Crew"
+  ],
+  "warn": null
+ },
+ "steal": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "gain-control": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "protection": {
+  "n": 1216,
+  "ex": [
+   "Swiftfoot Boots",
+   "Lightning Greaves",
+   "Heroic Intervention",
+   "The One Ring",
+   "Teferi's Protection",
+   "Flawless Maneuver",
+   "Boros Charm",
+   "Akroma's Will"
+  ],
+  "warn": null
+ },
+ "gives-protection": {
+  "n": 120,
+  "ex": [
+   "Akroma's Will",
+   "Commander's Plate",
+   "Mother of Runes",
+   "Sword of Feast and Famine",
+   "Sword of Hearth and Home",
+   "Sejiri Shelter // Sejiri Glacier",
+   "Akroma's Memorial",
+   "Sword of Fire and Ice"
+  ],
+  "warn": null
+ },
+ "fog": {
+  "n": 93,
+  "ex": [
+   "The One Ring",
+   "Teferi's Protection",
+   "Fog",
+   "Flare of Fortitude",
+   "Inkshield",
+   "Spore Frog",
+   "Arachnogenesis",
+   "Obscuring Haze"
+  ],
+  "warn": null
+ },
+ "hatebear": {
+  "n": 66,
+  "ex": [
+   "Esper Sentinel",
+   "Grand Abolisher",
+   "Orcish Bowmasters",
+   "Dauthi Voidwalker",
+   "Voice of Victory",
+   "Hexing Squelcher",
+   "Archivist of Oghma",
+   "Drannith Magistrate"
+  ],
+  "warn": null
+ },
+ "stax": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "haste-enabler": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "gives-haste": {
+  "n": 650,
+  "ex": [
+   "Swiftfoot Boots",
+   "Lightning Greaves",
+   "Rhythm of the Wild",
+   "Finale of Devastation",
+   "Anger",
+   "Arena of Glory",
+   "Helm of the Host",
+   "Rising of the Day"
+  ],
+  "warn": null
+ },
+ "scry": {
+  "n": 463,
+  "ex": [
+   "Path of Ancestry",
+   "Preordain",
+   "Opt",
+   "Viscera Seer",
+   "Temple of Epiphany",
+   "Temple of Silence",
+   "Temple of Triumph",
+   "Temple of Enlightenment"
+  ],
+  "warn": null
+ },
+ "surveil": {
+  "n": 332,
+  "ex": [
+   "Consider",
+   "Undercity Sewers",
+   "Underground Mortuary",
+   "Hedge Maze",
+   "Raucous Theater",
+   "Shadowy Backstreet",
+   "Thundering Falls",
+   "Commercial District"
+  ],
+  "warn": null
+ },
+ "proliferate": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "counter-placement": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "plus-one-counters": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "synergy-sacrifice": {
+  "n": 135,
+  "ex": [
+   "Mirkwood Bats",
+   "Mayhem Devil",
+   "Tireless Tracker",
+   "Captain Lannery Storm",
+   "Nuka-Cola Vending Machine",
+   "Crime Novelist",
+   "It That Betrays",
+   "Mazirek, Kraul Death Priest"
+  ],
+  "warn": null
+ },
+ "aristocrats": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "death-trigger": {
+  "n": 1601,
+  "ex": [
+   "Skullclamp",
+   "Solemn Simulacrum",
+   "Blood Artist",
+   "Pitiless Plunderer",
+   "Malakir Rebirth // Malakir Mire",
+   "Zulaport Cutthroat",
+   "Morbid Opportunist",
+   "Syr Konrad, the Grim"
+  ],
+  "warn": null
+ },
+ "etb-trigger": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "cast-trigger": {
+  "n": 1752,
+  "ex": [
+   "Path of Ancestry",
+   "Rhystic Study",
+   "Esper Sentinel",
+   "Mystic Remora",
+   "Storm-Kiln Artist",
+   "Beast Whisperer",
+   "Archmage Emeritus",
+   "Hullbreaker Horror"
+  ],
+  "warn": null
+ },
+ "cheat-into-play": {
+  "n": 266,
+  "ex": [
+   "Growth Spiral",
+   "Talon Gates of Madara",
+   "Archaeomancer's Map",
+   "Spelunking",
+   "Burgeoning",
+   "Last March of the Ents",
+   "Kodama of the East Tree",
+   "Ghalta, Stampede Tyrant"
+  ],
+  "warn": null
+ },
+ "put-onto-battlefield": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "cast-from-graveyard": {
+  "n": 145,
+  "ex": [
+   "Underworld Breach",
+   "Conduit of Worlds",
+   "Six",
+   "Emry, Lurker of the Loch",
+   "Muldrotha, the Gravetide",
+   "Past in Flames",
+   "Snapcaster Mage",
+   "Malcolm, Alluring Scoundrel"
+  ],
+  "warn": null
+ },
+ "flashback-granter": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "bounce-land": {
+  "n": 17,
+  "ex": [
+   "Simic Growth Chamber",
+   "Golgari Rot Farm",
+   "Dimir Aqueduct",
+   "Orzhov Basilica",
+   "Izzet Boilerworks",
+   "Gruul Turf",
+   "Azorius Chancery",
+   "Boros Garrison"
+  ],
+  "warn": null
+ },
+ "fetchland": {
+  "n": 54,
+  "ex": [
+   "Evolving Wilds",
+   "Terramorphic Expanse",
+   "Myriad Landscape",
+   "Polluted Delta",
+   "Flooded Strand",
+   "Misty Rainforest",
+   "Bloodstained Mire",
+   "Fabled Passage"
+  ],
+  "warn": null
+ },
+ "damage-prevention": {
+  "n": 591,
+  "ex": [
+   "The One Ring",
+   "Teferi's Protection",
+   "Maze of Ith",
+   "Fog",
+   "Flare of Fortitude",
+   "Inkshield",
+   "Gisela, Blade of Goldnight",
+   "Deflecting Palm"
+  ],
+  "warn": null
+ },
+ "lifelink": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ },
+ "gives-lifelink": {
+  "n": 222,
+  "ex": [
+   "Akroma's Will",
+   "Basilisk Collar",
+   "Shadowspear",
+   "Vault of the Archangel",
+   "Vito, Thorn of the Dusk Rose",
+   "Whip of Erebos",
+   "The Wind Crystal",
+   "Loxodon Warhammer"
+  ],
+  "warn": null
+ },
+ "deathtouch-granter": {
+  "n": 0,
+  "status": 404,
+  "details": "Your query didn\u2019t match any cards. Adjust your search terms or refer to the syntax guide at https://scryfall.com/docs/reference",
+  "warn": null
+ }
+}
