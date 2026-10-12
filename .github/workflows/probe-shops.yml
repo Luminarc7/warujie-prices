@@ -1,0 +1,25 @@
+# One-off helper: a look at the shops' public price lists (saved in tools/probe/).
+name: Probe shop price lists
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [tools/probe_shops.py]
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - run: python3 tools/probe_shops.py
+      - name: Save the summary
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tools/probe
+          git commit -m "Shop price list probe" && git push || echo "nothing new"
