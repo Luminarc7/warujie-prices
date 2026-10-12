@@ -29,7 +29,7 @@ on:
   workflow_dispatch:         # adds a "Run workflow" button
   push:                      # and runs when the builder or this file changes
     branches: [main]
-    paths: [build_prices.py, build_combos.py, .github/workflows/update-prices.yml]
+    paths: [build_prices.py, build_combos.py, build_tags.py, .github/workflows/update-prices.yml]
 
 permissions:
   contents: read
@@ -87,6 +87,13 @@ jobs:
       # the other days. Never stops the price update.
       - name: Build the Commander combos
         run: python3 build_combos.py --out site/c --previous "${{ steps.pages.outputs.url }}"
+
+      # What each card does (removal, card draw, ramp...) for the site's role
+      # search and similar cards, from Scryfall Tagger's oracle tags: rebuilt
+      # once a week, copied over from the published data on the other days.
+      # Never stops the price update.
+      - name: Build the role tags
+        run: python3 build_tags.py --out site/t --previous "${{ steps.pages.outputs.url }}"
 
       - uses: actions/upload-pages-artifact@v4
         with:

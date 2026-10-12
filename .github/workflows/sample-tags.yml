@@ -1,0 +1,26 @@
+# One-off helper: build the role tags now and save them in tools/sample/
+# (to check the roles against the card database). Removed afterwards.
+name: Sample tags
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/sample-tags.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - run: python3 build_tags.py --out tools/sample --force --minutes 25
+      - name: Save the result
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tools/sample
+          git commit -m "Sample of the role tags" && git push || echo "nothing new"
