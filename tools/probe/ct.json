@@ -1,0 +1,667 @@
+{
+ "token_set": true,
+ "info": [
+  200,
+  {
+   "shared_secret": "e1a06b82734af9d3b5362fd4d0e01740",
+   "name": "Warujie App 20261012142037",
+   "id": 25997,
+   "user_id": 606961
+  }
+ ],
+ "expansions_status": 200,
+ "expansions": {
+  "all": 3879,
+  "magic": 793,
+  "sample": [
+   {
+    "id": 1,
+    "game_id": 1,
+    "code": "gnt",
+    "name": "Game Night"
+   },
+   {
+    "id": 3,
+    "game_id": 1,
+    "code": "pgrn",
+    "name": "Guilds of Ravnica Promos"
+   },
+   {
+    "id": 4,
+    "game_id": 1,
+    "code": "gk1",
+    "name": "GRN Guild Kit"
+   }
+  ],
+  "mh2": [
+   {
+    "id": 974,
+    "game_id": 1,
+    "code": "mh1",
+    "name": "Modern Horizons"
+   },
+   {
+    "id": 2156,
+    "game_id": 1,
+    "code": "mh2",
+    "name": "Modern Horizons 2"
+   },
+   {
+    "id": 3110,
+    "game_id": 1,
+    "code": "dmr",
+    "name": "Dominaria Remastered"
+   }
+  ]
+ },
+ "blueprints": {
+  "mh1": [
+   200,
+   382,
+   [
+    {
+     "id": 56885,
+     "name": "Cabal Therapist",
+     "scryfall_id": "eaa8f485-0f3d-4a0b-bcdf-6c27d1d2bce0",
+     "category_id": 1,
+     "version": null
+    },
+    {
+     "id": 56886,
+     "name": "Serra the Benevolent",
+     "scryfall_id": "88bf4af9-4b14-43e7-9d50-0e6a895cece1",
+     "category_id": 1,
+     "version": null
+    },
+    {
+     "id": 57604,
+     "name": "Force of Vigor",
+     "scryfall_id": "017c415b-d635-43c6-92b8-8c95d1c4ff8d",
+     "category_id": 1,
+     "version": null
+    }
+   ],
+   274
+  ],
+  "mh2": [
+   200,
+   368,
+   [
+    {
+     "id": 155602,
+     "name": "Modern Horizons 2 Booster Box",
+     "scryfall_id": null,
+     "category_id": 4,
+     "version": ""
+    },
+    {
+     "id": 155603,
+     "name": "Modern Horizons 2 Set Booster Box",
+     "scryfall_id": null,
+     "category_id": 4,
+     "version": ""
+    },
+    {
+     "id": 155604,
+     "name": "Modern Horizons 2 Collector Booster Box",
+     "scryfall_id": null,
+     "category_id": 4,
+     "version": ""
+    }
+   ],
+   324
+  ]
+ },
+ "products": {
+  "mh1": {
+   "status": 200,
+   "blueprints": 348,
+   "products": 54418,
+   "currencies": [
+    [
+     "USD",
+     54418
+    ]
+   ],
+   "countries": [
+    [
+     "IT",
+     21049
+    ],
+    [
+     "US",
+     10514
+    ],
+    [
+     "ES",
+     5934
+    ],
+    [
+     "CA",
+     5583
+    ],
+    [
+     "DE",
+     2117
+    ],
+    [
+     "BE",
+     1518
+    ],
+    [
+     "GR",
+     1301
+    ],
+    [
+     "PT",
+     1049
+    ],
+    [
+     "GB",
+     903
+    ],
+    [
+     "FR",
+     831
+    ],
+    [
+     "NL",
+     578
+    ],
+    [
+     "SE",
+     376
+    ],
+    [
+     "DK",
+     335
+    ],
+    [
+     "CZ",
+     322
+    ],
+    [
+     "FI",
+     309
+    ]
+   ],
+   "conditions": [
+    [
+     "Near Mint",
+     33175
+    ],
+    [
+     "Slightly Played",
+     18500
+    ],
+    [
+     "Moderately Played",
+     2291
+    ],
+    [
+     "Played",
+     366
+    ],
+    [
+     "Poor",
+     86
+    ]
+   ],
+   "languages": [
+    [
+     "en",
+     41566
+    ],
+    [
+     "it",
+     6629
+    ],
+    [
+     "jp",
+     1614
+    ],
+    [
+     "es",
+     1521
+    ],
+    [
+     "de",
+     1151
+    ],
+    [
+     "ru",
+     906
+    ],
+    [
+     "fr",
+     682
+    ],
+    [
+     "zh-CN",
+     142
+    ],
+    [
+     "zh-TW",
+     122
+    ],
+    [
+     "kr",
+     73
+    ],
+    [
+     "pt",
+     12
+    ]
+   ],
+   "keys": [
+    "blueprint_id",
+    "description",
+    "expansion",
+    "graded",
+    "id",
+    "name_en",
+    "on_vacation",
+    "price",
+    "price_cents",
+    "price_currency",
+    "properties_hash",
+    "quantity",
+    "user"
+   ],
+   "prop_keys": [
+    "altered",
+    "cmc",
+    "collector_number",
+    "condition",
+    "mtg_card_colors",
+    "mtg_foil",
+    "mtg_language",
+    "mtg_rarity",
+    "signed",
+    "tournament_legal"
+   ],
+   "sample": [
+    {
+     "id": 309069029,
+     "blueprint_id": 56886,
+     "name_en": "Serra the Benevolent",
+     "expansion": {
+      "id": 974,
+      "code": "mh1",
+      "name_en": "Modern Horizons"
+     },
+     "price_cents": 364,
+     "price_currency": "USD",
+     "quantity": 9,
+     "description": "",
+     "properties_hash": {
+      "mtg_rarity": "Mythic",
+      "condition": "Near Mint",
+      "mtg_language": "jp",
+      "mtg_foil": false,
+      "signed": false,
+      "altered": false,
+      "collector_number": "026",
+      "cmc": "4.0",
+      "mtg_card_colors": "W",
+      "tournament_legal": true
+     },
+     "graded": false,
+     "on_vacation": false,
+     "price": {
+      "cents": 364,
+      "currency": "USD",
+      "currency_symbol": "$",
+      "formatted": "$3.64"
+     },
+     "user_country": "GR"
+    },
+    {
+     "id": 345496523,
+     "blueprint_id": 56886,
+     "name_en": "Serra the Benevolent",
+     "expansion": {
+      "id": 974,
+      "code": "mh1",
+      "name_en": "Modern Horizons"
+     },
+     "price_cents": 483,
+     "price_currency": "USD",
+     "quantity": 1,
+     "description": "",
+     "properties_hash": {
+      "mtg_rarity": "Mythic",
+      "condition": "Moderately Played",
+      "mtg_language": "zh-CN",
+      "mtg_foil": false,
+      "signed": false,
+      "altered": false,
+      "collector_number": "026",
+      "cmc": "4.0",
+      "mtg_card_colors": "W",
+      "tournament_legal": true
+     },
+     "graded": false,
+     "on_vacation": false,
+     "price": {
+      "cents": 483,
+      "currency": "USD",
+      "currency_symbol": "$",
+      "formatted": "$4.83"
+     },
+     "user_country": "IT"
+    },
+    {
+     "id": 401448231,
+     "blueprint_id": 56886,
+     "name_en": "Serra the Benevolent",
+     "expansion": {
+      "id": 974,
+      "code": "mh1",
+      "name_en": "Modern Horizons"
+     },
+     "price_cents": 505,
+     "price_currency": "USD",
+     "quantity": 1,
+     "description": "",
+     "properties_hash": {
+      "mtg_rarity": "Mythic",
+      "condition": "Slightly Played",
+      "mtg_language": "zh-CN",
+      "mtg_foil": false,
+      "signed": false,
+      "altered": false,
+      "collector_number": "026",
+      "cmc": "4.0",
+      "mtg_card_colors": "W",
+      "tournament_legal": true
+     },
+     "graded": false,
+     "on_vacation": false,
+     "price": {
+      "cents": 505,
+      "currency": "USD",
+      "currency_symbol": "$",
+      "formatted": "$5.05"
+     },
+     "user_country": "IT"
+    }
+   ]
+  },
+  "mh2": {
+   "status": 200,
+   "blueprints": 329,
+   "products": 48766,
+   "currencies": [
+    [
+     "USD",
+     48766
+    ]
+   ],
+   "countries": [
+    [
+     "IT",
+     20055
+    ],
+    [
+     "US",
+     9507
+    ],
+    [
+     "CA",
+     4511
+    ],
+    [
+     "ES",
+     4288
+    ],
+    [
+     "DE",
+     2048
+    ],
+    [
+     "PT",
+     1141
+    ],
+    [
+     "NL",
+     1083
+    ],
+    [
+     "GR",
+     1066
+    ],
+    [
+     "BE",
+     1002
+    ],
+    [
+     "FR",
+     741
+    ],
+    [
+     "GB",
+     512
+    ],
+    [
+     "DK",
+     340
+    ],
+    [
+     "FI",
+     324
+    ],
+    [
+     "SE",
+     319
+    ],
+    [
+     "CZ",
+     291
+    ]
+   ],
+   "conditions": [
+    [
+     "Near Mint",
+     33817
+    ],
+    [
+     "Slightly Played",
+     13510
+    ],
+    [
+     "Moderately Played",
+     1237
+    ],
+    [
+     "Played",
+     150
+    ],
+    [
+     "Poor",
+     52
+    ]
+   ],
+   "languages": [
+    [
+     "en",
+     38107
+    ],
+    [
+     "it",
+     5639
+    ],
+    [
+     "es",
+     1329
+    ],
+    [
+     "fr",
+     1258
+    ],
+    [
+     "de",
+     1115
+    ],
+    [
+     "jp",
+     874
+    ],
+    [
+     "ru",
+     210
+    ],
+    [
+     "zh-CN",
+     90
+    ],
+    [
+     "kr",
+     90
+    ],
+    [
+     "zh-TW",
+     50
+    ],
+    [
+     "pt",
+     4
+    ]
+   ],
+   "keys": [
+    "blueprint_id",
+    "description",
+    "expansion",
+    "graded",
+    "id",
+    "name_en",
+    "on_vacation",
+    "price",
+    "price_cents",
+    "price_currency",
+    "properties_hash",
+    "quantity",
+    "user"
+   ],
+   "prop_keys": [
+    "altered",
+    "cmc",
+    "collector_number",
+    "condition",
+    "mtg_card_colors",
+    "mtg_foil",
+    "mtg_language",
+    "mtg_rarity",
+    "signed",
+    "tournament_legal"
+   ],
+   "sample": [
+    {
+     "id": 378913391,
+     "blueprint_id": 155920,
+     "name_en": "Cabal Coffers",
+     "expansion": {
+      "id": 2156,
+      "code": "mh2",
+      "name_en": "Modern Horizons 2"
+     },
+     "price_cents": 1924,
+     "price_currency": "USD",
+     "quantity": 1,
+     "description": "",
+     "properties_hash": {
+      "mtg_rarity": "Mythic",
+      "condition": "Slightly Played",
+      "mtg_language": "zh-CN",
+      "mtg_foil": false,
+      "signed": false,
+      "altered": false,
+      "collector_number": "301",
+      "cmc": "0",
+      "mtg_card_colors": "L",
+      "tournament_legal": true
+     },
+     "graded": false,
+     "on_vacation": false,
+     "price": {
+      "cents": 1924,
+      "currency": "USD",
+      "currency_symbol": "$",
+      "formatted": "$19.24"
+     },
+     "user_country": "IT"
+    },
+    {
+     "id": 458465726,
+     "blueprint_id": 155920,
+     "name_en": "Cabal Coffers",
+     "expansion": {
+      "id": 2156,
+      "code": "mh2",
+      "name_en": "Modern Horizons 2"
+     },
+     "price_cents": 1924,
+     "price_currency": "USD",
+     "quantity": 6,
+     "description": null,
+     "properties_hash": {
+      "mtg_rarity": "Mythic",
+      "condition": "Near Mint",
+      "mtg_language": "zh-TW",
+      "mtg_foil": false,
+      "signed": false,
+      "altered": false,
+      "collector_number": "301",
+      "cmc": "0",
+      "mtg_card_colors": "L",
+      "tournament_legal": true
+     },
+     "graded": false,
+     "on_vacation": false,
+     "price": {
+      "cents": 1924,
+      "currency": "USD",
+      "currency_symbol": "$",
+      "formatted": "$19.24"
+     },
+     "user_country": "ES"
+    },
+    {
+     "id": 451670933,
+     "blueprint_id": 155920,
+     "name_en": "Cabal Coffers",
+     "expansion": {
+      "id": 2156,
+      "code": "mh2",
+      "name_en": "Modern Horizons 2"
+     },
+     "price_cents": 2059,
+     "price_currency": "USD",
+     "quantity": 1,
+     "description": "07 - 2026 - FE",
+     "properties_hash": {
+      "mtg_rarity": "Mythic",
+      "condition": "Near Mint",
+      "mtg_language": "jp",
+      "mtg_foil": false,
+      "signed": false,
+      "altered": false,
+      "collector_number": "301",
+      "cmc": "0",
+      "mtg_card_colors": "L",
+      "tournament_legal": true
+     },
+     "graded": false,
+     "on_vacation": false,
+     "price": {
+      "cents": 2059,
+      "currency": "USD",
+      "currency_symbol": "$",
+      "formatted": "$20.59"
+     },
+     "user_country": "ES"
+    }
+   ]
+  }
+ }
+}
