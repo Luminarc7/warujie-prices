@@ -16,7 +16,8 @@ prices of every printing to the stored history, and writes:
                        from MTGJSON's daily price file; the lowest listings
                        (TCGCSV, Cardmarket's price guide); and offers by
                        condition with the copies in stock, from Card Kingdom's
-                       and Mana Pool's public price lists
+                       and Mana Pool's public price lists and (with an API
+                       token in CARDTRADER_TOKEN) CardTrader's sellers in Europe
     movers.json        biggest risers and fallers over 1, 7 and 30 days, for
                        the US market (dollars) and the European one (euros)
     ids.json.gz        MTGJSON's card ids matched to Scryfall's (kept for a week)
@@ -63,7 +64,15 @@ CK_PRICELIST = "https://api.cardkingdom.com/api/v2/pricelist"          # Card Ki
 MANAPOOL_VARIANTS = "https://manapool.com/api/v1/prices/variants"      # Mana Pool's public prices (by language, condition, finish)
 OFFERS_SOURCE = "Card Kingdom and Mana Pool (offers by condition, with stock; their public price lists)"
 CK_CONDITIONS = (("nm", "NM"), ("ex", "EX"), ("vg", "VG"), ("g", "G"))
-LISTINGS_PER_FINISH = 12    # offers kept per printing and finish (the cheapest)
+LISTINGS_PER_FINISH = 12    # offers kept per printing, market and finish (the cheapest)
+CARDTRADER_API = "https://api.cardtrader.com/api/v2"                    # needs a CardTrader account's API token (CARDTRADER_TOKEN)
+CARDTRADER_SOURCE = "CardTrader (offers by condition, with stock, from sellers in Europe; CardTrader API)"
+CARDTRADER_MINUTES = 40     # time allowed for reading CardTrader's marketplace each day
+CT_CONDITIONS = {"Mint": "M", "Near Mint": "NM", "Slightly Played": "SP", "Moderately Played": "MP",
+                 "Played": "PL", "Heavily Played": "HP", "Poor": "PO"}
+CT_LANGS = {"jp": "JA", "ja": "JA", "kr": "KO", "ko": "KO", "zh-cn": "CS", "zh-tw": "CT"}
+EUROPE = set("AD AL AT BA BE BG BY CH CY CZ DE DK EE ES FI FO FR GB GI GR HR HU IE IS IT LI LT LU LV MC MD ME MK MT NL NO PL PT RO RS SE SI SK SM UA VA XK".split())
+OFFER_MARKETS = {"ck": "us", "mp": "us", "ct": "eu"}
 
 FORMAT_VERSION = 1
 DAILY_DAYS = 120            # keep every day for this long, then weekly
@@ -644,6 +653,92 @@ def manapool_offers(source, rows, links):
     return str((meta.get("meta") or {}).get("as_of") or "")
 
 
+def cardtrader_offers(source, token, rows, links, minutes=CARDTRADER_MINUTES):
+    """CardTrader's marketplace (the cheapest 25 copies of every card, foil and
+    non-foil asked for separately), keeping sellers in Europe and prices in
+    euros: ["ct", foil, condition, cents, copies, language, seller's country].
+    `source` is the API, or a folder of saved answers for testing. Reading
+    stops after `minutes`; whatever was read by then is used."""
+    print("Reading CardTrader's marketplace...")
+    remote = source.startswith(("http://", "https://"))
+    calls = {"t": 0.0}
+
+    def get(path, pause=0.06):
+        if not remote:
+            name = path.replace("?", "_").replace("&", "_").replace("=", "-").replace("/", "_") + ".json"
+            with open(os.path.join(source, name), encoding="utf-8") as fh:
+                return json.load(fh)
+        for attempt in range(3):
+            wait = calls["t"] + pause - time.time()
+            if wait > 0:
+                time.sleep(wait)
+            calls["t"] = time.time()
+            req = urllib.request.Request(source.rstrip("/") + "/" + path, headers=dict(HEADERS, Authorization="Bearer " + token))
+            try:
+                with urllib.request.urlopen(req, timeout=120) as resp:
+                    return json.loads(resp.read().decode("utf-8"))
+            except urllib.error.HTTPError as err:
+                if err.code == 429 and attempt < 2:
+                    time.sleep(10)
+                    continue
+                raise
+
+    start, n, skipped, failed, other_cur = time.time(), 0, {}, 0, set()
+    expansions = [e for e in get("expansions") if e.get("game_id") == 1]
+    done = 0
+    for exp in expansions:
+        if time.time() - start > minutes * 60:
+            print(f"  stopped after {minutes} minutes ({done} of {len(expansions)} sets read)")
+            break
+        eid = exp.get("id")
+        try:
+            bps = get(f"blueprints/export?expansion_id={eid}")
+            sid_of = {b["id"]: b["scryfall_id"] for b in bps if b.get("scryfall_id") and b.get("id")}
+            if not sid_of:
+                done += 1
+                continue
+            for foil in (0, 1):
+                data = get(f"marketplace/products?expansion_id={eid}&foil={'true' if foil else 'false'}", pause=1.05)
+                for bp_id, products in (data or {}).items():
+                    sid = sid_of.get(int(bp_id))
+                    if not sid:
+                        continue
+                    for prod in products or []:
+                        props = prod.get("properties_hash") or {}
+                        if prod.get("on_vacation") or prod.get("graded") or props.get("altered") or props.get("signed"):
+                            continue
+                        country = str((prod.get("user") or {}).get("country_code") or "").upper()
+                        if country not in EUROPE:
+                            skipped[country or "?"] = skipped.get(country or "?", 0) + 1
+                            continue
+                        price = prod.get("price") or {}
+                        if str(price.get("currency") or "").upper() != "EUR":
+                            other_cur.add(str(price.get("currency")))
+                            continue
+                        c, qty = price.get("cents"), prod.get("quantity") or 0
+                        if not isinstance(c, int) or c <= 0 or qty <= 0:
+                            continue
+                        lang = str(props.get("mtg_language") or "en").lower()
+                        lang = "" if lang == "en" else CT_LANGS.get(lang, lang.upper())
+                        is_foil = 1 if props.get("mtg_foil") in (True, "true") else 0 if props.get("mtg_foil") in (False, "false") else foil
+                        cond = CT_CONDITIONS.get(str(props.get("condition") or ""), "")
+                        rows.setdefault(sid, []).append(["ct", is_foil, cond, c, int(qty), lang, country])
+                        links.setdefault(sid, {})["ct"] = int(bp_id)
+                        n += 1
+            done += 1
+        except Exception as err:   # one set going wrong is fine
+            failed += 1
+            print(f"  note: CardTrader set {eid} could not be read ({err})")
+    if other_cur:
+        print(f"  note: prices in {', '.join(sorted(other_cur))} were left out - set the CardTrader account's currency to EUR")
+    top = sorted(skipped.items(), key=lambda kv: -kv[1])[:8]
+    print(f"  {n} offers from sellers in Europe ({done} of {len(expansions)} sets{f', {failed} failed' if failed else ''}); "
+          f"left out, by seller country: {dict(top)}")
+    if not n:
+        raise ValueError("no CardTrader offers found")
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def shop_offers(args, products):
     """Offers with condition and stock from the shops' public price lists, by
     Scryfall id: ({id: rows}, {id: links}, {shop: as-of time}). Each printing
@@ -657,13 +752,20 @@ def shop_offers(args, products):
             when[shop] = read(src, rows, links) or "?"
         except Exception as err:   # the daily update goes on without them
             print(f"  note: {shop}'s offers could not be read ({err}).")
+    token = os.environ.get("CARDTRADER_TOKEN", "").strip()
+    if args.cardtrader or token:
+        try:
+            when["cardtrader"] = cardtrader_offers(args.cardtrader or CARDTRADER_API, token, rows, links, args.cardtrader_minutes)
+        except Exception as err:
+            print(f"  note: CardTrader's offers could not be read ({err}).")
     for sid, got in rows.items():
-        got.sort(key=lambda r: (r[1], r[3], -r[4]))
-        kept, per = [], [0, 0]
+        got.sort(key=lambda r: (OFFER_MARKETS.get(r[0], ""), r[1], r[3], -r[4]))
+        kept, per = [], {}
         for r in got:
-            if per[r[1]] < LISTINGS_PER_FINISH:
+            key = (OFFER_MARKETS.get(r[0], ""), r[1])
+            if per.get(key, 0) < LISTINGS_PER_FINISH:
                 kept.append(r)
-                per[r[1]] += 1
+                per[key] = per.get(key, 0) + 1
         rows[sid] = kept
     for sid, (tcg, cm) in products.items():
         pid = tcg[0] or tcg[1]
@@ -840,8 +942,10 @@ def build(args):
     offers = None
     if args.offers != "never":
         offers = shop_offers(args, products)
-        if offers[2] and OFFERS_SOURCE not in sources:
+        if set(offers[2]) & {"cardkingdom", "manapool"} and OFFERS_SOURCE not in sources:
             sources.append(OFFERS_SOURCE)
+        if "cardtrader" in offers[2] and CARDTRADER_SOURCE not in sources:
+            sources.append(CARDTRADER_SOURCE)
     check = source_check(dates, idx, shards, info, quote_data, ids)
     if offers:
         check["offers"] = {"as_of": offers[2], "printings": len(offers[0]), "rows": sum(len(r) for r in offers[0].values())}
@@ -1054,6 +1158,8 @@ def main():
     ap.add_argument("--offers", choices=("auto", "never"), default="auto", help="offers by condition with stock (Card Kingdom, Mana Pool)")
     ap.add_argument("--ck-pricelist", default="", help="a saved Card Kingdom price list to use instead of downloading")
     ap.add_argument("--manapool-variants", default="", help="a saved Mana Pool variant price list to use instead of downloading")
+    ap.add_argument("--cardtrader", default="", help="a folder of saved CardTrader answers (normally the API, used when CARDTRADER_TOKEN is set)")
+    ap.add_argument("--cardtrader-minutes", type=float, default=CARDTRADER_MINUTES, help="time allowed for reading CardTrader")
     build(ap.parse_args())
 
 

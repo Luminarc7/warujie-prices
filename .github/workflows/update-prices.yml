@@ -44,7 +44,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       # The site reads the prices from https://<your-user-name>.github.io/warujie-prices/,
       # so this only works in a repository with exactly that name.
@@ -74,7 +74,12 @@ jobs:
       # Stops (without publishing) if the old history can't be read or
       # Scryfall's export looks incomplete, so the history is never lost.
       # (If MTGJSON can't be reached, the day's update still goes ahead.)
+      # CardTrader's European sellers are read when the repository has a
+      # CARDTRADER_TOKEN secret (a CardTrader account's API token; Settings ->
+      # Secrets and variables -> Actions). Without it they are simply skipped.
       - name: Build the price history
+        env:
+          CARDTRADER_TOKEN: ${{ secrets.CARDTRADER_TOKEN }}
         run: python3 build_prices.py --out site --previous "${{ steps.pages.outputs.url }}" ${{ steps.pages.outputs.fresh }}
 
       # Commander combos for the card pages, from Commander Spellbook's bulk
