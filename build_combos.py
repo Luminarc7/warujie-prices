@@ -40,7 +40,7 @@ import urllib.error
 import urllib.request
 
 BULK_URL = os.environ.get("WARUJIE_COMBOS_URL", "https://json.commanderspellbook.com/variants.json.gz")
-HEADERS = {"User-Agent": "WarujieComboBuilder/2.0 (+https://github.com/Luminarc7/warujie-prices)", "Accept": "application/json"}
+HEADERS = {"User-Agent": "WarujieComboBuilder/2.0 (+https://github.com/warujie/warujie-prices)", "Accept": "application/json"}
 FORMAT_BITS = ["standard", "pioneer", "modern", "legacy", "vintage", "premodern", "commander", "pauper"]
 FIELDS = ["id", "identity", "cards", "templates", "results", "mana", "popularity", "legal", "prerequisites", "steps"]
 MAX_TEXT = 1500       # longest prerequisites / steps text kept per combo

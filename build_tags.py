@@ -25,7 +25,7 @@ reached within the time budget keeps its published cards). It never stops
 the price update: on any problem it writes nothing and exits normally.
 
 Usage (normally run by GitHub Actions - see update-prices.yml):
-    python3 build_tags.py --out site/t --previous https://luminarc7.github.io/warujie-prices/
+    python3 build_tags.py --out site/t --previous https://warujie.github.io/warujie-prices/
     python3 build_tags.py --out site/t --previous site --force      # rebuild now
     python3 build_tags.py --out site/t --api tests/fixture-folder   # saved answers, for testing
 """
@@ -41,7 +41,7 @@ import urllib.request
 from datetime import date, datetime, timezone
 
 API = "https://api.scryfall.com"
-HEADERS = {"User-Agent": "WarujiePriceHistory/1.1 (+https://github.com/Luminarc7/warujie-prices)", "Accept": "application/json"}
+HEADERS = {"User-Agent": "WarujiePriceHistory/1.1 (+https://github.com/warujie/warujie-prices)", "Accept": "application/json"}
 SOURCE = "Scryfall Tagger (oracle tags, via Scryfall's search API)"
 FORMAT_VERSION = 1
 REBUILD_DAYS = 7

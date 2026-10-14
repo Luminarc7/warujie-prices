@@ -31,7 +31,7 @@ values are kept for the last 120 days; older history keeps one value a week
 (Mondays), so the files stay small for years.
 
 Usage (normally run by GitHub Actions - see update-prices.yml):
-    python3 build_prices.py --out site --previous https://luminarc7.github.io/warujie-prices/
+    python3 build_prices.py --out site --previous https://warujie.github.io/warujie-prices/
     python3 build_prices.py --out site --previous <url> --allow-fresh   # very first run
     python3 build_prices.py --out site --previous site            # previous data in a folder
     python3 build_prices.py --out site --bulk cards.jsonl.gz      # test with a saved export
@@ -58,7 +58,7 @@ import urllib.request
 from datetime import date, datetime, timedelta, timezone
 
 BULK_DATA_ENDPOINT = "https://api.scryfall.com/bulk-data"
-HEADERS = {"User-Agent": "WarujiePriceHistory/1.1 (+https://github.com/Luminarc7/warujie-prices)", "Accept": "application/json"}
+HEADERS = {"User-Agent": "WarujiePriceHistory/1.1 (+https://github.com/warujie/warujie-prices)", "Accept": "application/json"}
 TCGCSV_BASE = "https://tcgcsv.com/"   # TCGplayer's prices, republished once a day (lowest listings too)
 CARDMARKET_GUIDE = "https://downloads.s3.cardmarket.com/productCatalog/priceGuide/price_guide_1.json"   # Cardmarket's own daily price guide (Magic)
 LOWS_SOURCE = "TCGCSV (TCGplayer lowest listings) and Cardmarket's price guide (lowest offers)"
@@ -94,7 +94,7 @@ SCRYFALL_SOURCE = "Scryfall (TCGplayer market prices, USD; Cardmarket trend pric
 QUOTES_SOURCE = "MTGJSON (today's prices at several shops)"
 COLOR_ORDER = "WUBRG"
 
-MTGJSON_BASE = os.environ.get("AKUCHIE_MTGJSON_BASE", "https://mtgjson.com/api/v5/")
+MTGJSON_BASE = os.environ.get("WARUJIE_MTGJSON_BASE", "https://mtgjson.com/api/v5/")
 BACKFILL_IF_FEWER = 60      # auto: fill in past prices while the history has fewer dates than this
 BACKFILL_DAYS = 90          # MTGJSON keeps 90 days
 BACKFILL_RETRY_DAYS = 7     # auto: after a failed attempt, wait this long before downloading again
