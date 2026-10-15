@@ -32,4 +32,5 @@ and [`docs/data-formats.md`](docs/data-formats.md) (every published file).
   "Changing a file format" in `docs/README.md`).
 - Name code by function or constant, never by line number.
 - Before pushing, run `python3 dev/check_docs.py` (with the site repository cloned next to this
-  one): it fails when a name the docs mention no longer exists in the code.
+  one): it fails when a name the docs mention no longer exists in the code. GitHub runs it on
+  pushes to `main` and on pull requests (`.github/workflows/check-docs.yml`).

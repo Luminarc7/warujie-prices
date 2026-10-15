@@ -129,4 +129,6 @@ The site reads these files directly, so a format change is a change in two repos
 Every commit that changes a builder's behaviour, a published file, an option, the schedule or a
 source updates this folder in the same commit (`data-formats.md` for file shapes, this file for
 the rest). Run `python3 dev/check_docs.py` before pushing: it fails when a name the docs mention
-no longer exists in the code.
+no longer exists in the code. GitHub runs it too on pushes to `main` and on pull requests
+(`.github/workflows/check-docs.yml`, check "Docs match the code"); it only reads files and never
+publishes data.
