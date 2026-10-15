@@ -11,6 +11,7 @@ one small file instead of everything.
 | `h/<xx>.json.gz` | `build_prices.py` | `loadPriceShard()`, `drawPriceHistory()` |
 | `q/<xx>.json.gz` | `build_prices.py` | `loadQuoteShard()`, `loadCardQuotes()` |
 | `movers.json` | `build_prices.py` | `loadMovers()`, `renderHomeMovers()` |
+| `cheap.json.gz` | `build_prices.py` | `loadCheapest()`, `deckCost()` (deck prices and Arena wildcards on the metagame tab and deck pages) |
 | `ids.json.gz` | `build_prices.py` | nobody (the builder's own cache: MTGJSON ids → Scryfall ids, kept a week) |
 | `c/index.json`, `c/<xx>.json.gz` | `build_combos.py` | `loadComboIndex()`, `loadComboShard()` |
 | `t/tags.json.gz` | `build_tags.py` | `loadTags()` |
@@ -94,6 +95,20 @@ one printing per card (its biggest move). Each entry:
 | `img` | small picture URL |
 | `f` | 1 when the foil price moved (no non-foil price) |
 | `now`, `then`, `pct` | today's and the earlier price in cents, change in % |
+
+## `cheap.json.gz`: each card's cheapest printing
+
+```json
+{"version": 1, "date": "2026-10-15", "fields": ["usd", "eur", "arena"],
+ "cards": {"Lightning Bolt": [74, 110, "c"], "Island": [5, 4, "c"], …}}
+```
+
+One row per card name (two-part cards under their full Scryfall name). `usd` is the lowest
+TCGplayer non-foil price of any paper printing and `eur` the lowest Cardmarket one, in cents;
+a card with no non-foil price at all falls back to its lowest foil price (`note_cheapest()`,
+`finish_cheapest()`). `arena` is the lowest MTG Arena rarity among its Arena printings
+(`c`, `u`, `r`, `m`), or `""` when it isn't on Arena. Excluded printings (the same rules as
+the rest of the build) don't count.
 
 ## `c/`: Commander combos
 
