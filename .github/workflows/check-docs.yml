@@ -16,8 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with: { path: warujie-prices }
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with: { repository: warujie/Warujie, ref: staging, path: Warujie }
       - run: python3 warujie-prices/dev/check_docs.py
