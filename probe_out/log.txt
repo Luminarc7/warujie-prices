@@ -1,7 +1,0 @@
-118740 printings, 34141 cards
-Lightning Bolt [74, 110, 'c']
-Island [8, 2, 'c']
-Steam Vents [960, 987, 'r']
-Sleight of Hand [28, 18, 'c']
-Kaito, Bane of Nightmares [870, 1050, 'm']
-Hearth Elemental // Stoke Genius [41, 27, 'u']
