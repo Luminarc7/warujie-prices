@@ -4,7 +4,7 @@ name: ENNDAL test night
 on:
   push:
     branches: [claude/project-thread-2174h4]
-    paths: [dev/probes/enndal_test.go]   # push this file to start the run, at night Japan time
+    paths: [dev/probes/enndal_test.go, dev/probes/enndal_diag.go]   # push this file to start the run, at night Japan time
 permissions:
   contents: write
 concurrency: { group: enndal-test, cancel-in-progress: false }
@@ -14,12 +14,17 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v6
+        with: { fetch-depth: 2 }
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - name: Test night
         run: |
           mkdir -p probe_out
-          ( set -x; python3 dev/probes/enndal_test.py ) > probe_out/enndal_test_log.txt 2>&1 || true
+          if git diff --name-only HEAD~1 HEAD | grep -q enndal_diag.go; then
+            ( set -x; python3 dev/probes/enndal_diag.py ) > probe_out/enndal_diag_log.txt 2>&1 || true
+          else
+            ( set -x; python3 dev/probes/enndal_test.py ) > probe_out/enndal_test_log.txt 2>&1 || true
+          fi
       - name: Commit result
         run: |
           git config user.name "github-actions[bot]"
