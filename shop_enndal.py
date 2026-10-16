@@ -30,6 +30,8 @@ USER_AGENT = f"WarujieShopPrices/1.0 (+https://warujie.jp; {CONTACT})"
 PAGE_GAP = 4.0          # seconds between pages (we promised 3-5)
 PER_PAGE = 100          # the largest page size the shop offers
 LANGS = {"日本語": "JA", "英語": "EN"}
+# ENNDAL set codes that differ from Scryfall's (M2R = the MH2 timeshifts in MH3 boosters)
+SET_ALIASES = {"m2r": "h2r"}
 
 CATEGORY_RE = re.compile(
     r'category_id=(\d+)&(?:amp;)?disp_number=\d+"[^>]*>([^<]+)<span>\((\d+)\)</span>')
@@ -87,7 +89,7 @@ def parse_list(page):
                 continue
             offers.append((LANGS[lang], cond, int(yen.replace(",", "")), copies))
         en, ja = split_name(title)
-        out.append({"set": set_code.lower(), "number": number.lstrip("0") or "0",
+        out.append({"set": SET_ALIASES.get(set_code.lower(), set_code.lower()), "number": number.lstrip("0") or "0",
                     "finish": finish, "name_en": en, "name_ja": ja,
                     "url": htmllib.unescape(url), "offers": offers})
     return out
