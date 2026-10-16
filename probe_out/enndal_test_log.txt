@@ -1,16 +1,38 @@
 + python3 dev/probes/enndal_test.py
 Reading Scryfall's default_cards...
   118736 printings
-categories read: [2363, 2333] of [2363, 2333]; 1.0 minutes
-finish:foil: 309
-finish:normal: 361
-matched by number: 669
-matched by number, name differs: 1
-offers: 1051
-products: 670
-set blb: 634 matched, 0 not
-set blc: 30 matched, 0 not
-set spg: 6 matched, 0 not
+categories read: [2333] of [2333]; 1.1 minutes
+finish:etched: 6
+finish:foil: 279
+finish:normal: 630
+finish:other: 1
+matched by name: 1
+matched by number: 893
+matched by number, name differs: 4
+offers: 1385
+products: 916
+set m2r: 0 matched, 18 not
+set m3c: 230 matched, 0 not
+set mh3: 651 matched, 0 not
+set spg: 17 matched, 0 not
 
 not matched:
+  m2r 3 normal Solitude
+  m2r 6 normal Subtlety
+  m2r 7 normal Grief
+  m2r 10 normal Fury
+  m2r 11 normal Ragavan, Nimble Pilferer
+  m2r 2 normal Esper Sentinel
+  m2r 4 normal Dress Down
+  m2r 1 normal Abiding Grace
+  m2r 8 normal Sling-Gang Lieutenant
+  m2r 12 normal Strike It Rich
+  m2r 16 normal Munitions Expert
+  m2r 5 normal Hard Evidence
+  m2r 13 normal Unholy Heat
+  m2r 3 foil Solitude
+  m2r 6 foil Subtlety
+  m2r 2 foil Esper Sentinel
+  m2r 9 foil Dragon's Rage Channeler
+  m2r 13 foil Unholy Heat
 
