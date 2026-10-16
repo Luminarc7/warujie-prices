@@ -1,0 +1,16 @@
++ python3 dev/probes/enndal_test.py
+Reading Scryfall's default_cards...
+  118736 printings
+categories read: [2363, 2333] of [2363, 2333]; 1.0 minutes
+finish:foil: 309
+finish:normal: 361
+matched by number: 669
+matched by number, name differs: 1
+offers: 1051
+products: 670
+set blb: 634 matched, 0 not
+set blc: 30 matched, 0 not
+set spg: 6 matched, 0 not
+
+not matched:
+
