@@ -10,7 +10,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 import build_prices as bp
 import shop_enndal as en
 
-CATEGORIES = [2363, 2333]          # Bloomburrow, Modern Horizons 3
+# Bloomburrow (2363) was read on 2026-10-17 and all 670 matched; MH3 read
+# nothing because its codes end in "_", so it is read again after the fix.
+CATEGORIES = [2333]                # Modern Horizons 3
 OUT = "probe_out/enndal_match.txt"
 os.makedirs("probe_out", exist_ok=True)
 

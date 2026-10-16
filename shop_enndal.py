@@ -35,7 +35,8 @@ CATEGORY_RE = re.compile(
     r'category_id=(\d+)&(?:amp;)?disp_number=\d+"[^>]*>([^<]+)<span>\((\d+)\)</span>')
 PRODUCT_RE = re.compile(r'<div class="list_area[^"]*">(.*?)<div class="listcomment">', re.S)
 NAME_RE = re.compile(r'<a href="([^"]+/product/([^/"]+)/)"\s+class="product_name"[^>]*>([^<]+)</a>')
-CODE_RE = re.compile(r'^([A-Z0-9]+)-([A-Z])([A-Z])-([0-9A-Za-z]+)-([A-Z]+)-([A-Z]+)-([a-z]+)$')
+# some sets' codes end in "_" (MH3-MC-0006-JP-NM-normal_)
+CODE_RE = re.compile(r'^([A-Z0-9]+)-([A-Z])([A-Z])-([0-9A-Za-z]+)-([A-Z]+)-([A-Z]+)-([a-z]+)_*$')
 ROW_RE = re.compile(r'<tr><th>\s*(\S+)\s+(\S+)\s*</th><td><span class="price">([\d,]+)円</span>'
                     r'<span class="quantity">\s*残り\s*(\d+)</span>')
 TOTAL_RE = re.compile(r'<span class="attention">(\d+)件</span>')
@@ -131,6 +132,8 @@ def read_shop(categories, minutes, get=fetch, sleep=time.sleep, log=print):
             first = False
             page = get(list_url(cid, page_no))
             got = parse_list(page)
+            if not got and PRODUCT_RE.search(page):
+                log(f"  ENNDAL: category {cid} page {page_no} has products we could not read")
             products.extend(got)
             total = parse_total(page)
             if not got or page_no * PER_PAGE >= total:
