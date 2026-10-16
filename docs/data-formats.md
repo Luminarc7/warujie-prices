@@ -12,6 +12,7 @@ one small file instead of everything.
 | `q/<xx>.json.gz` | `build_prices.py` | `loadQuoteShard()`, `loadCardQuotes()` |
 | `movers.json` | `build_prices.py` | `loadMovers()`, `renderHomeMovers()` |
 | `cheap.json.gz` | `build_prices.py` | `loadCheapest()`, `deckCost()` (deck prices and Arena wildcards on the metagame tab and deck pages) |
+| `cheap_prints.json.gz` | `build_prices.py` | `loadCheapPrints()` (which printing is the cheapest, on the deck price page) |
 | `ids.json.gz` | `build_prices.py` | nobody (the builder's own cache: MTGJSON ids → Scryfall ids, kept a week) |
 | `c/index.json`, `c/<xx>.json.gz` | `build_combos.py` | `loadComboIndex()`, `loadComboShard()` |
 | `t/tags.json.gz` | `build_tags.py` | `loadTags()` |
@@ -109,6 +110,19 @@ a card with no non-foil price at all falls back to its lowest foil price (`note_
 `finish_cheapest()`). `arena` is the lowest MTG Arena rarity among its Arena printings
 (`c`, `u`, `r`, `m`), or `""` when it isn't on Arena. Excluded printings (the same rules as
 the rest of the build) don't count.
+
+## `cheap_prints.json.gz`: which printing is the cheapest
+
+```json
+{"version": 1, "date": "2026-10-15", "fields": ["usd", "eur"],
+ "cards": {"Lightning Bolt": ["sta/42", "2x2/117"], "Island": ["fdn/279", "fdn/279"], …}}
+```
+
+Written by the same run as `cheap.json.gz`, with the same card names: the printing
+(`set/collector number`, Scryfall's codes) whose price `cheap.json.gz` gives, for the USD and the
+EUR price, or `""` where there is none (`finish_cheapest()`). When several printings share the
+lowest price, the first one in the bulk file is kept. It is a file of its own so the metagame tab,
+which needs only the prices, doesn't download it.
 
 ## `c/`: Commander combos
 

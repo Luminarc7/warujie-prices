@@ -13,7 +13,7 @@ This repository builds the price, listing, combo and role-tag data that
 
 | File | What it builds | Into | Source |
 |---|---|---|---|
-| [`build_prices.py`](../build_prices.py) | Price history, today's shop prices, lowest listings, offers with stock, price movers | `site/index.json`, `site/h/`, `site/q/`, `site/movers.json`, `site/cheap.json.gz`, `site/ids.json.gz` | Scryfall `default_cards` bulk file (TCGplayer USD, Cardmarket EUR), MTGJSON (history backfill, shop prices), TCGCSV and Cardmarket's price guide (lowest listings), Card Kingdom's and Mana Pool's public price lists, CardTrader's API |
+| [`build_prices.py`](../build_prices.py) | Price history, today's shop prices, lowest listings, offers with stock, price movers | `site/index.json`, `site/h/`, `site/q/`, `site/movers.json`, `site/cheap.json.gz`, `site/cheap_prints.json.gz`, `site/ids.json.gz` | Scryfall `default_cards` bulk file (TCGplayer USD, Cardmarket EUR), MTGJSON (history backfill, shop prices), TCGCSV and Cardmarket's price guide (lowest listings), Card Kingdom's and Mana Pool's public price lists, CardTrader's API |
 | [`build_combos.py`](../build_combos.py) | Commander combos per card | `site/c/` | Commander Spellbook's bulk file |
 | [`build_tags.py`](../build_tags.py) | Role tags (removal, draw, ramp…) and EDHREC rank per card | `site/t/tags.json.gz` | Scryfall Tagger oracle tags, via Scryfall's search API |
 | [`.github/workflows/update-prices.yml`](../.github/workflows/update-prices.yml) | Runs the three builders and publishes `site/` to GitHub Pages | | |
@@ -65,7 +65,8 @@ the token anywhere else.
    one-day spikes and prices MTGJSON disagrees with.
 7. A self-check of the sources (`source_check()`), then `write_output()`.
 8. Each card's cheapest printing for deck prices (`note_cheapest()` during the read, written as
-   `cheap.json.gz`; see [data-formats.md](data-formats.md)).
+   `cheap.json.gz`, and which printing that is as `cheap_prints.json.gz`; see
+   [data-formats.md](data-formats.md)).
 
 Daily values are kept for 120 days (`DAILY_DAYS`); older history keeps one value a week (Mondays),
 so the files stay small for years.
