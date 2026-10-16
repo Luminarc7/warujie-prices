@@ -1,0 +1,4 @@
+robots.txt	404	0	text/html; charset=UTF-8	https://www.enndalgames.com/robots.txt
+list_blb_p1.html	200	350906	text/html; charset=UTF-8	https://www.enndalgames.com/products/list.php?category_id=2363&disp_number=100
+list_blb_p2.html	200	345982	text/html; charset=UTF-8	https://www.enndalgames.com/products/list.php?category_id=2363&disp_number=100&pageno=2
+search_bolt.html	200	120972	text/html; charset=UTF-8	https://www.enndalgames.com/products/list.php?mode=search&name=%E7%A8%B2%E5%A6%BB
