@@ -4,7 +4,7 @@ ENNDAL GAMES agreed (2026-10-15) to low-frequency automated access. This fetches
 about five pages once, one at a time and 5 seconds apart, honours robots.txt,
 and saves the raw pages under probe_out/enndal/ for offline parsing.
 """
-import os, re, time, urllib.request, urllib.robotparser
+import os, re, time, urllib.error, urllib.request, urllib.robotparser
 
 BASE = "https://www.enndalgames.com"
 CONTACT = "warujie.mtg" + "@" + "gmail.com"
@@ -24,7 +24,10 @@ def save(name, url, status, headers, body):
     with open(f"{OUT}/index.txt", "a") as f:
         f.write(f"{name}\t{status}\t{len(body)}\t{headers.get('Content-Type','')}\t{url}\n")
 
-status, headers, robots = get(BASE + "/robots.txt")
+try:
+    status, headers, robots = get(BASE + "/robots.txt")
+except urllib.error.HTTPError as e:   # no robots.txt (404) means no restrictions
+    status, headers, robots = e.code, dict(e.headers), b""
 save("robots.txt", BASE + "/robots.txt", status, headers, robots)
 rp = urllib.robotparser.RobotFileParser()
 rp.parse(robots.decode("utf-8", "replace").splitlines())
