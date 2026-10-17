@@ -1,0 +1,90 @@
+
+==================== bigweb  https://mtg.bigweb.co.jp/
+  home: HTTP Error 403: Forbidden
+
+==================== PRICE BASE  https://shop.price-base.com/
+  home ok (https://shop.price-base.com/); title: PRICE BASE通販｜トレカの購入ならプライスベース通販
+  mentions MTG singles: False
+  robots.txt:
+    User-agent: *
+    Disallow:
+    Sitemap: https://shop.price-base.com/sitemap_index.xml
+  links: エピソード1 ファースト・コンタクト [DMR-01] <https://shop.price-base.com/c/duelmasters/d-episode1firstcontact>; 2024.06.01
+利用規約を制定いたしました。 <https://shop.price-base.com/f/terms-of-use>; 2024.06.01
+プライバシーポリシーを制定いたしました。 <https://shop.price-base.com/f/privacy-policy>; お問い合わせ <https://shop.price-base.com/f/contact>; 特定商取引法に基づく表記 <https://shop.price-base.com/f/notations-about>
+  -- エピソード1 ファースト・コンタクト [DMR-01] <https://shop.price-base.com/c/duelmasters/d-episode1firstcontact> form
+     
+  -- 2024.06.01
+利用規約を制定いたしました。 <https://shop.price-base.com/f/terms-of-use> form
+     (6) コンピューターのソフトウェア、ハードウェア、通信機器等の機能を妨害、破壊、制限等するように設計されたコンピューターウィルス、プログラム等をメール等の手段で送信したり、本ウェブサイトにアップロードしたりする行為
+     (7) 本サービスを通じて提供される著作物等の知的財産権若しくは本サービスに関する著作物等の知的財産権をお客様が使用、複製、販売、出版、頒布、公開等する行為又はそれらに類似する行為
+     4. お客様が、当社に対し、第2項の期間内の指示を行わない場合又は第3項に定める費用全額（再配達予定日までに生じる費用全額）を、当社が請求してから7日以内支払わないときは、当社は、お客様との販売契約は自動的に解除されるものとします。
+  -- お問い合わせ <https://shop.price-base.com/f/contact> form
+     
+  -- 特定商取引法に基づく表記 <https://shop.price-base.com/f/notations-about> form
+     
+  emails: ec-support@price-base.com
+
+==================== Toretoku  https://www.toretoku.jp/
+  home ok (https://www.toretoku.jp/); title: トレカの激安通販｜トレトク【公式】
+  mentions MTG singles: True
+  robots.txt:
+    User-agent: *
+    Crawl-Delay: 30
+    Disallow: /blog/*?s=
+    
+    User-agent: bingbot
+    Crawl-Delay: 100
+    Disallow: /blog/*?s=
+    
+    User-agent: Googlebot
+    Crawl-Delay: 100
+    Disallow: /blog/*?s=
+    
+    User-Agent: Applebot
+    Crawl-delay: 100
+    Disallow: /blog/*?s=
+    
+    User-Agent: msnbot
+    Crawl-delay: 100
+    Disallow: /blog/*?s=
+    
+    User-agent: Google
+    Disallow:
+    
+    User-agent: AhrefsBot
+    Disallow: *
+  links: ご利用ガイド <https://www.toretoku.jp/guide>; お問い合わせ <https://www.toretoku.jp/inquiry>; 会社概要 <https://yamatoku-corporate.jp/company/>; ご利用規約 <https://www.toretoku.jp/agreement>; プライバシーポリシー <https://yamatoku-corporate.jp/privacy/>; 特定商取引法に基づく表示 <https://www.toretoku.jp/law>
+  -- ご利用ガイド <https://www.toretoku.jp/guide> form
+     ご注文完了後、自動配信メールが送信されます。
+     ※自動配信メールが届かない場合は、
+     銀行振込や郵便局振込を選択したお客様には、自動配信メールにて振込先口座をご案内いたします。
+     コンビニ決済を選択したお客様には、自動配信メールにてお支払い番号などの情報をご案内いたします。
+     入金確認メールは、入金確認日の15時以降に一括で自動配信いたします。
+     発送完了メールは、発送日の夕方頃に一括で自動配信いたします。
+     振込先口座は、注文後の自動配信メールにてご案内しております。
+     お支払いに必要な番号などは、注文後の自動配信メールにてご案内いたします。
+  -- お問い合わせ <https://www.toretoku.jp/inquiry> form
+     
+  -- 会社概要 <https://yamatoku-corporate.jp/company/> 
+     
+  -- ご利用規約 <https://www.toretoku.jp/agreement> form
+     当社は、特に合意した場合を除き、お客様に対し、コンテンツについていかなる権利を与えるものではなく、お客様は、コンテンツを無断で複製、転載、改変、その他の二次利用をすることはできません。
+     当社が定める有効期間を経過した場合、ポイントは自動的に消滅します。
+  -- 特定商取引法に基づく表示 <https://www.toretoku.jp/law> form
+     お支払いに必要な番号等は、注文後の自動配信メールにてご案内いたします。
+  emails: 
+
+==================== search for the other shops' addresses
+  ジョニーのお店 MTG:
+    (no results)
+  カードショップ抜忍 MTG 通販:
+    (no results)
+  竜のしっぽ MTG 通販:
+    (no results)
+  イエローサブマリン MTG シングル 通販:
+    (no results)
+  ホビーステーション MTG シングル 通販:
+    (no results)
+  マスターズスクウェア MTG 通販:
+    (no results)
