@@ -13,10 +13,12 @@ This repository builds the price, listing, combo and role-tag data that
 
 | File | What it builds | Into | Source |
 |---|---|---|---|
-| [`build_prices.py`](../build_prices.py) | Price history, today's shop prices, lowest listings, offers with stock, price movers | `site/index.json`, `site/h/`, `site/q/`, `site/movers.json`, `site/cheap.json.gz`, `site/ids.json.gz` | Scryfall `default_cards` bulk file (TCGplayer USD, Cardmarket EUR), MTGJSON (history backfill, shop prices), TCGCSV and Cardmarket's price guide (lowest listings), Card Kingdom's and Mana Pool's public price lists, CardTrader's API |
+| [`build_prices.py`](../build_prices.py) | Price history, today's shop prices, lowest listings, offers with stock, price movers | `site/index.json`, `site/h/`, `site/q/`, `site/movers.json`, `site/cheap.json.gz`, `site/ids.json.gz` | Scryfall `default_cards` bulk file (TCGplayer USD, Cardmarket EUR), MTGJSON (history backfill, shop prices), TCGCSV and Cardmarket's price guide (lowest listings), Card Kingdom's and Mana Pool's public price lists, CardTrader's API, last night's ENNDAL GAMES data |
+| [`shop_enndal.py`](../shop_enndal.py) | ENNDAL GAMES' in-stock singles in yen (Japan), read once a night; also matches them to printings for `build_prices.py` | `enndal.json.gz` (an artifact, not published) | ENNDAL GAMES' shop pages, with the shop's permission |
 | [`build_combos.py`](../build_combos.py) | Commander combos per card | `site/c/` | Commander Spellbook's bulk file |
 | [`build_tags.py`](../build_tags.py) | Role tags (removal, draw, ramp…) and EDHREC rank per card | `site/t/tags.json.gz` | Scryfall Tagger oracle tags, via Scryfall's search API |
 | [`.github/workflows/update-prices.yml`](../.github/workflows/update-prices.yml) | Runs the three builders and publishes `site/` to GitHub Pages | | |
+| [`.github/workflows/enndal-nightly.yml`](../.github/workflows/enndal-nightly.yml) | Runs `shop_enndal.py` at 2am Japan time and keeps the result as the "enndal" artifact | | |
 
 **Nothing is committed by the workflow.** Each run reads yesterday's published data from the
 Pages address (`--previous`), adds today, and publishes the result. The repository never grows,
@@ -31,6 +33,11 @@ be read or Scryfall's export looks incomplete (`--min-cards`, default 20,000 pri
 - every day at **12:17 UTC** (21:17 in Japan), after Scryfall's daily export;
 - when `build_prices.py`, `build_combos.py`, `build_tags.py` or the workflow changes on `main`;
 - by hand ("Run workflow" in GitHub Actions).
+
+`enndal-nightly.yml` runs every day at **17:00 UTC** (2:00 in Japan) and stops by 20:45 UTC
+(5:45 in Japan): that is what we told ENNDAL GAMES. `shop_enndal.py` refuses to start outside
+that window, so a run by hand in the daytime does nothing. The evening price update then uses
+that night's data, so ENNDAL's stock on the site is from the night before.
 
 `build_combos.py` and `build_tags.py` rebuild only when the published data is older than 7 days;
 on other days they copy the published files over. Neither can stop the price update: on any
@@ -58,8 +65,10 @@ the token anywhere else.
    from TCGCSV and Cardmarket's price guide (`add_lows()`).
 5. Offers by condition with stock (`shop_offers()`): Card Kingdom, Mana Pool, and, with the token,
    CardTrader (`cardtrader_offers()`, time-limited by `CARDTRADER_MINUTES`; it resumes where it
-   stopped on the next day via `ct_resume`). The cheapest `LISTINGS_PER_FINISH` per market and
-   finish are kept.
+   stopped on the next day via `ct_resume`), and ENNDAL GAMES from `--enndal` (`add_offers()` in
+   `shop_enndal.py`: matched by set and collector number, or by a name that is unique in the set).
+   Without `--enndal`, the published ENNDAL offers are kept for up to `KEEP_DAYS`. The cheapest
+   `LISTINGS_PER_FINISH` per market and finish are kept.
 6. Price movers (`movers()`): biggest rises and falls over 1, 7 and 30 days (`WINDOWS`), US and EU,
    for cards worth at least `MIN_PRICE_CENTS` that moved at least `MIN_CHANGE_CENTS`, ignoring
    one-day spikes and prices MTGJSON disagrees with.
@@ -69,6 +78,19 @@ the token anywhere else.
 
 Daily values are kept for 120 days (`DAILY_DAYS`); older history keeps one value a week (Mondays),
 so the files stay small for years.
+
+### `shop_enndal.py`
+
+ENNDAL GAMES agreed to low-frequency automated reading on 2026-10-15, and we told them how we
+read: once a night, one page at a time, `PAGE_GAP` (4) seconds apart, with a User-Agent naming
+warujie.jp and our contact address. **Keep it that way: never read pages in parallel or in the
+daytime, and stop at once if they ask.** A 403, 429 or 503 stops the night.
+
+`nightly()` reads the set menu (`MENU_URL`, leaving out `SKIP_WORDS` such as supplies and
+Flesh and Blood), then each set's in-stock list pages (`list_url()`, 100 products a page), the
+sets read longest ago first, for at most `NIGHT_MINUTES`. A set not read tonight keeps its
+products for up to `KEEP_DAYS`. `parse_list()` reads each product's code
+(`SET-<rarity><colour>-<number>-<lang>-<condition>-<finish>`) and its price table.
 
 ### `build_combos.py`
 
@@ -121,6 +143,7 @@ The site reads these files directly, so a format change is a change in two repos
 |---|---|
 | No price history, listings or movers on any card | GitHub → warujie-prices → Actions → the last "Update price history" run. A red run publishes nothing, so yesterday's data stays up. |
 | Data is a day old | Normal until 12:17 UTC plus the run time (the run can take over an hour with CardTrader) |
+| ENNDAL GAMES prices missing on the Japan tab | Actions → "ENNDAL GAMES nightly": a red run (the shop refused, or it started too late) keeps the earlier data for up to a week. Its notice line says how many sets were read |
 | CardTrader listings missing | Token missing or expired (the run log says so); the 40-minute budget may also have ended before a set was reached |
 | Role search falls back to text | `t/tags.json.gz` missing or broken; check the "Build the role tags" step |
 | Combos missing on the preview page | `c/index.json`; check the "Build the Commander combos" step |

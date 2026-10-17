@@ -29,11 +29,12 @@ on:
   workflow_dispatch:         # adds a "Run workflow" button
   push:                      # and runs when the builder or this file changes
     branches: [main]
-    paths: [build_prices.py, build_combos.py, build_tags.py, .github/workflows/update-prices.yml]
+    paths: [build_prices.py, shop_enndal.py, build_combos.py, build_tags.py, .github/workflows/update-prices.yml]
 
 permissions:
   contents: read
   deployments: read          # to tell whether this is the very first run
+  actions: read              # to fetch last night's ENNDAL GAMES data (enndal-nightly.yml)
   pages: write               # to publish the data
   id-token: write            # required by GitHub Pages publishing
 
@@ -71,6 +72,21 @@ jobs:
           n=$(gh api "repos/${GITHUB_REPOSITORY}/deployments?environment=github-pages&per_page=1" --jq length 2>/dev/null || echo error)
           if [ "$n" = "0" ]; then echo "First run - starting a new history."; echo "fresh=--allow-fresh" >> "$GITHUB_OUTPUT"; fi
 
+      # ENNDAL GAMES' stock, read at 2am Japan time by enndal-nightly.yml and
+      # kept as that run's "enndal" artifact. Without it (no run yet, or it
+      # failed) the published ENNDAL offers are kept for up to a week.
+      - name: Fetch last night's ENNDAL GAMES data
+        id: enndal
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=enndal&per_page=1" --jq '.artifacts[] | select(.expired | not) | .id' 2>/dev/null || true)
+          if [ -n "$id" ] && gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}/zip" > enndal.zip && unzip -o -q enndal.zip -d enndal && [ -f enndal/enndal.json.gz ]; then
+            echo "arg=--enndal enndal/enndal.json.gz" >> "$GITHUB_OUTPUT"
+          else
+            echo "No ENNDAL GAMES data from last night; the published ENNDAL offers are kept."
+          fi
+
       # Stops (without publishing) if the old history can't be read or
       # Scryfall's export looks incomplete, so the history is never lost.
       # (If MTGJSON can't be reached, the day's update still goes ahead.)
@@ -80,7 +96,7 @@ jobs:
       - name: Build the price history
         env:
           CARDTRADER_TOKEN: ${{ secrets.CARDTRADER_TOKEN }}
-        run: python3 build_prices.py --out site --previous "${{ steps.pages.outputs.url }}" ${{ steps.pages.outputs.fresh }}
+        run: python3 build_prices.py --out site --previous "${{ steps.pages.outputs.url }}" ${{ steps.pages.outputs.fresh }} ${{ steps.enndal.outputs.arg }}
 
       # Commander combos for the card pages, from Commander Spellbook's bulk
       # file: rebuilt once a week, copied over from the published data on

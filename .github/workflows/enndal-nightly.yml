@@ -1,0 +1,55 @@
+# ENNDAL GAMES' in-stock singles, read once a night for warujie.jp's Japan prices.
+#
+# ENNDAL GAMES agreed on 2026-10-15 to low-frequency automated access, and we
+# told them how: once a night between 2am and 6am Japan time, one page at a
+# time, 4 seconds apart, with a User-Agent naming warujie.jp and our contact
+# address (shop_enndal.py). Keep it that way, and stop at once if they ask.
+#
+# The result is this run's "enndal" artifact (enndal.json.gz). The next
+# "Update price history" run (update-prices.yml) matches it to Scryfall's
+# printings and publishes the offers; the next night starts from it, reading
+# the sets read longest ago first. Nothing is committed.
+
+name: ENNDAL GAMES nightly
+
+on:
+  schedule:
+    - cron: "0 17 * * *"     # 17:00 UTC = 2:00 in Japan (GitHub may start it a little late)
+  workflow_dispatch:         # by hand: shop_enndal.py still refuses to read outside Japan's night
+
+permissions:
+  contents: read
+  actions: read              # to fetch the previous night's artifact
+
+concurrency:
+  group: enndal-nightly
+  cancel-in-progress: false
+
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Fetch the previous night's data
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=enndal&per_page=1" --jq '.artifacts[] | select(.expired | not) | .id' 2>/dev/null || true)
+          if [ -n "$id" ] && gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}/zip" > last.zip; then
+            unzip -o -q last.zip -d last || true
+          fi
+          ls -l last 2>/dev/null || echo "No previous night: starting afresh."
+
+      # Stops by 20:45 UTC (5:45 in Japan), whatever is left; the next night carries on.
+      - name: Read ENNDAL GAMES
+        run: python3 shop_enndal.py --previous last/enndal.json.gz --out out/enndal.json.gz --until 20:45
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: enndal
+          path: out/enndal.json.gz
+          retention-days: 14
+          compression-level: 0
+          if-no-files-found: error

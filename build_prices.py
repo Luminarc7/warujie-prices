@@ -17,7 +17,9 @@ prices of every printing to the stored history, and writes:
                        (TCGCSV, Cardmarket's price guide); and offers by
                        condition with the copies in stock, from Card Kingdom's
                        and Mana Pool's public price lists and (with an API
-                       token in CARDTRADER_TOKEN) CardTrader's sellers in Europe
+                       token in CARDTRADER_TOKEN) CardTrader's sellers in Europe;
+                       and ENNDAL GAMES' stock in yen (read once a night by
+                       shop_enndal.py, given with --enndal)
     movers.json        biggest risers and fallers over 1, 7 and 30 days, for
                        the US market (dollars) and the European one (euros)
     ids.json.gz        MTGJSON's card ids matched to Scryfall's (kept for a week)
@@ -57,6 +59,8 @@ import urllib.error
 import urllib.request
 from datetime import date, datetime, timedelta, timezone
 
+import shop_enndal
+
 BULK_DATA_ENDPOINT = "https://api.scryfall.com/bulk-data"
 HEADERS = {"User-Agent": "WarujiePriceHistory/1.1 (+https://github.com/warujie/warujie-prices)", "Accept": "application/json"}
 TCGCSV_BASE = "https://tcgcsv.com/"   # TCGplayer's prices, republished once a day (lowest listings too)
@@ -77,7 +81,8 @@ CT_CONDITIONS = {"Mint": "M", "Near Mint": "NM", "Slightly Played": "SP", "Moder
                  "Played": "PL", "Heavily Played": "HP", "Poor": "PO"}
 CT_LANGS = {"jp": "JA", "ja": "JA", "kr": "KO", "ko": "KO", "zh-cn": "CS", "zh-tw": "CT"}
 EUROPE = set("AD AL AT BA BE BG BY CH CY CZ DE DK EE ES FI FO FR GB GI GR HR HU IE IS IT LI LT LU LV MC MD ME MK MT NL NO PL PT RO RS SE SI SK SM UA VA XK".split())
-OFFER_MARKETS = {"ck": "us", "mp": "us", "ct": "eu"}
+ENNDAL_SOURCE = "ENNDAL GAMES (offers in yen by language and condition, with stock; read once a night, with the shop's permission)"
+OFFER_MARKETS = {"ck": "us", "mp": "us", "ct": "eu", "ed": "jp"}   # "ed" = ENNDAL GAMES: prices in yen, not cents
 
 FORMAT_VERSION = 1
 DAILY_DAYS = 120            # keep every day for this long, then weekly
@@ -786,12 +791,14 @@ def cardtrader_offers(source, token, rows, links, minutes=CARDTRADER_MINUTES, re
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), (0 if done >= len(order) else last)
 
 
-def shop_offers(args, products):
+def shop_offers(args, products, printings=({}, {})):
     """Offers with condition and stock from the shops' public price lists, by
     Scryfall id: ({id: rows}, {id: links}, {shop: as-of time}). Each printing
-    keeps its cheapest LISTINGS_PER_FINISH offers per finish. Links: Card
-    Kingdom's product pages, Mana Pool's card page, and TCGplayer's and
-    Cardmarket's product numbers (for the lowest listings in the shop prices)."""
+    keeps its cheapest LISTINGS_PER_FINISH offers per market and finish. Links:
+    Card Kingdom's product pages, Mana Pool's card page, ENNDAL GAMES' product
+    paths, and TCGplayer's and Cardmarket's product numbers (for the lowest
+    listings in the shop prices). `printings` ({(set, number): (id, name)},
+    {(set, name): [ids]}) matches ENNDAL's products to Scryfall's printings."""
     rows, links, when = {}, {}, {}
     for shop, read, src in (("cardkingdom", cardkingdom_offers, args.ck_pricelist or CK_PRICELIST),
                             ("manapool", manapool_offers, args.manapool_variants or MANAPOOL_VARIANTS)):
@@ -799,40 +806,62 @@ def shop_offers(args, products):
             when[shop] = read(src, rows, links) or "?"
         except Exception as err:   # the daily update goes on without them
             print(f"  note: {shop}'s offers could not be read ({err}).")
+    prev_index = {}
+    try:
+        prev_index = load_published(args.previous, "index.json") or {}
+    except Exception:
+        pass
+    prev_when = prev_index.get("offers") or {}
+    # ENNDAL GAMES: the products read last night (shop_enndal.py), matched to printings here
+    if args.enndal:
+        try:
+            data = shop_enndal.load(args.enndal)
+            n, ok, missed = shop_enndal.add_offers(data, printings[0], printings[1], rows, links)
+            if not n:
+                raise ValueError("no ENNDAL product matched a printing")
+            when["enndal"] = data.get("updated") or "?"
+            print(f"  ENNDAL GAMES: {n} offers of {ok} products ({missed} products matched no printing), read {when['enndal']}")
+            print(f"::notice title=ENNDAL GAMES::{ok} products matched, {missed} not; {n} offers; read {when['enndal']}")
+        except Exception as err:
+            print(f"  note: ENNDAL GAMES' offers could not be read ({err}); keeping the earlier ones.")
+    # (the earlier ones are kept for up to shop_enndal.KEEP_DAYS, so offers stop showing if the nightly reading stops)
+    run_day = datetime.fromisoformat(args.date).replace(tzinfo=timezone.utc) if args.date else datetime.now(timezone.utc)
+    ed_cutoff = (run_day - timedelta(days=shop_enndal.KEEP_DAYS)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    keep_ed = "enndal" not in when and str(prev_when.get("enndal") or "") >= ed_cutoff
     token = os.environ.get("CARDTRADER_TOKEN", "").strip()
     resume = 0
-    if args.cardtrader or token:
-        prev_index = {}
-        try:
-            prev_index = load_published(args.previous, "index.json") or {}
-        except Exception:
-            pass
-        seen = set()
+    seen = set()
+    keep_ct = bool(args.cardtrader or token)
+    if keep_ct:
         try:
             when["cardtrader"], resume = cardtrader_offers(args.cardtrader or CARDTRADER_API, token, rows, links, args.cardtrader_minutes,
                                                            int(prev_index.get("ct_resume") or 0), seen)
         except Exception as err:
             print(f"  note: CardTrader's offers could not be read ({err}).")
             resume = int(prev_index.get("ct_resume") or 0)
-        # the sets not read today keep the offers published last time (a day or two old)
-        kept = 0
-        try:
-            for key in (prev_index.get("shards") or []) if prev_index.get("offers", {}).get("cardtrader") else []:
-                old = load_published(args.previous, f"q/{key}.json.gz") or {}
-                for sid, old_rows in (old.get("l") or {}).items():
-                    if sid in seen:
-                        continue
-                    ct = [r for r in old_rows if r and r[0] == "ct"]
-                    if ct and not any(r[0] == "ct" for r in rows.get(sid, [])):
-                        rows.setdefault(sid, []).extend(ct)
-                        if ((old.get("lk") or {}).get(sid) or {}).get("ct"):
-                            links.setdefault(sid, {})["ct"] = old["lk"][sid]["ct"]
-                        kept += 1
-            if kept:
-                print(f"  kept the earlier CardTrader offers of {kept} printings from sets not read today")
-                when.setdefault("cardtrader", prev_index["offers"]["cardtrader"])
-        except Exception as err:
-            print(f"  note: the earlier CardTrader offers could not be read ({err}).")
+    # CardTrader's sets not read today, and ENNDAL GAMES when last night's
+    # products are missing, keep the offers published last time
+    keep_ct = keep_ct and bool(prev_when.get("cardtrader"))
+    kept = {"ct": 0, "ed": 0}
+    try:
+        for key in (prev_index.get("shards") or []) if keep_ct or keep_ed else []:
+            old = load_published(args.previous, f"q/{key}.json.gz") or {}
+            for sid, old_rows in (old.get("l") or {}).items():
+                for shop, wanted in (("ct", keep_ct and sid not in seen), ("ed", keep_ed)):
+                    got = [r for r in old_rows if r and r[0] == shop] if wanted else []
+                    if got and not any(r[0] == shop for r in rows.get(sid, [])):
+                        rows.setdefault(sid, []).extend(got)
+                        if ((old.get("lk") or {}).get(sid) or {}).get(shop):
+                            links.setdefault(sid, {})[shop] = old["lk"][sid][shop]
+                        kept[shop] += 1
+        if kept["ct"]:
+            print(f"  kept the earlier CardTrader offers of {kept['ct']} printings from sets not read today")
+            when.setdefault("cardtrader", prev_when["cardtrader"])
+        if kept["ed"]:
+            print(f"  kept the earlier ENNDAL GAMES offers of {kept['ed']} printings")
+            when.setdefault("enndal", prev_when["enndal"])
+    except Exception as err:
+        print(f"  note: the earlier offers could not be read ({err}).")
     for sid, got in rows.items():
         got.sort(key=lambda r: (OFFER_MARKETS.get(r[0], ""), r[1], r[3], -r[4]))
         kept, per = [], {}
@@ -1002,12 +1031,17 @@ def build(args):
     info = {}
     products = {}   # Scryfall id -> ([TCGplayer product, etched product], Cardmarket product)
     cheap = {}      # card name -> [cheapest USD, cheapest EUR, MTG Arena rarity] (for deck prices)
+    by_number, by_name = {}, {}   # for matching ENNDAL GAMES' products: (set, number) and (set, name) -> printing
     seen = priced = 0
     for card in iter_cards(source):
         seen += 1
         if card.get("lang", "en") != "en":
             continue
         note_cheapest(cheap, card)
+        number_key = (card.get("set", ""), shop_enndal.number_key(card.get("collector_number", "")))
+        first_name = card.get("name", "").split(" // ")[0]
+        by_number[number_key] = (card["id"], first_name)
+        by_name.setdefault((card.get("set", ""), first_name.lower()), []).append(card["id"])
         if card.get("tcgplayer_id") or card.get("tcgplayer_etched_id") or card.get("cardmarket_id"):
             products[card["id"]] = ([card.get("tcgplayer_id"), card.get("tcgplayer_etched_id")], card.get("cardmarket_id"))
         p = card.get("prices") or {}
@@ -1060,15 +1094,18 @@ def build(args):
             sources.append(LOWS_SOURCE)
     offers = None
     if args.offers != "never":
-        offers = shop_offers(args, products)
+        offers = shop_offers(args, products, (by_number, by_name))
         if set(offers[2]) & {"cardkingdom", "manapool"} and OFFERS_SOURCE not in sources:
             sources.append(OFFERS_SOURCE)
         if "cardtrader" in offers[2] and CARDTRADER_SOURCE not in sources:
             sources.append(CARDTRADER_SOURCE)
+        if "enndal" in offers[2] and ENNDAL_SOURCE not in sources:
+            sources.append(ENNDAL_SOURCE)
     check = source_check(dates, idx, shards, info, quote_data, ids)
     if offers:
         check["offers"] = {"as_of": offers[2], "printings": len(offers[0]), "rows": sum(len(r) for r in offers[0].values()),
-                           "cardtrader_printings": sum(1 for r in offers[0].values() if any(x[0] == "ct" for x in r)), "ct_resume": offers[3]}
+                           "cardtrader_printings": sum(1 for r in offers[0].values() if any(x[0] == "ct" for x in r)),
+                           "enndal_printings": sum(1 for r in offers[0].values() if any(x[0] == "ed" for x in r)), "ct_resume": offers[3]}
     mover_data = movers(today, dates, shards, info, (quote_data or ({},))[0])
     check["movers_top"] = {w: {m: {d: [f"{e['n']} ({e['s']}) {e['then']}->{e['now']} {e['pct']}%" for e in blk[m][d][:5]]
                                    for d in ("up", "down")} for m in MARKETS} for w, blk in mover_data.items()}
@@ -1261,7 +1298,8 @@ def write_output(out, today, dates, shards, mover_data, sources=None, backfill_t
                  "<a href='https://scryfall.com'>Scryfall</a>; earlier days and shop prices via "
                  "<a href='https://mtgjson.com'>MTGJSON</a>; lowest listings via "
                  "<a href='https://tcgcsv.com'>TCGCSV</a> and Cardmarket's price guide; offers with stock via "
-                 "Card Kingdom's and Mana Pool's public price lists.</p>")
+                 "Card Kingdom's and Mana Pool's public price lists, and CardTrader; Japanese shop stock from "
+                 "ENNDAL GAMES, with the shop's permission.</p>")
     print(f"Wrote {len(dates)} dates, {sum(len(s) for s in shards.values())} printings, "
           f"{total / 1e6:.1f} MB of history; movers for {', '.join(mover_data) or 'no windows yet'} day(s)")
 
@@ -1287,6 +1325,7 @@ def main():
     ap.add_argument("--ck-pricelist", default="", help="a saved Card Kingdom price list to use instead of downloading")
     ap.add_argument("--manapool-variants", default="", help="a saved Mana Pool variant price list to use instead of downloading")
     ap.add_argument("--cardtrader", default="", help="a folder of saved CardTrader answers (normally the API, used when CARDTRADER_TOKEN is set)")
+    ap.add_argument("--enndal", default="", help="last night's enndal.json.gz from shop_enndal.py (without it, the published ENNDAL offers are kept)")
     ap.add_argument("--cardtrader-minutes", type=float, default=CARDTRADER_MINUTES, help="time allowed for reading CardTrader")
     build(ap.parse_args())
 

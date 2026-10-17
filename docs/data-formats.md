@@ -27,7 +27,7 @@ one small file instead of everything.
   "source": "…", "sources": ["…"],
   "quotes_date": "2026-10-14",
   "providers": {"tcgplayer": "USD", "cardkingdom": "USD", "cardmarket": "EUR", "tcgplayer_low": "USD", "cardmarket_low": "EUR", "…": "…"},
-  "offers": {"ck": "…", "mp": "…", "ct": "…"},
+  "offers": {"cardkingdom": "…", "manapool": "…", "cardtrader": "…", "enndal": "2026-10-17T17:00:00Z"},
   "ct_resume": 0,
   "backfill_tried": "2026-06-20"
 }
@@ -35,7 +35,7 @@ one small file instead of everything.
 
 `dates` is the history's timeline: daily for the last 120 days, Mondays before that.
 `quotes_date`, `providers` and `offers` appear only when those parts were read; `offers` says
-when each listing source was read.
+when each listing source was read (for `enndal`, the night ENNDAL GAMES was read).
 
 ## `h/<xx>.json.gz`: price history
 
@@ -54,8 +54,9 @@ printings; the site maps a Japanese printing to its English twin first.
 ```json
 {"date": "2026-10-14",
  "p":  {"<scryfall id>": {"<shop>": [sell, sell_foil, buy, buy_foil]}},
- "l":  {"<scryfall id>": [["ck", 0, "NM", 1299, 4, ""], ["ct", 1, "SP", 950, 1, "JA", "DE"]]},
- "lk": {"<scryfall id>": {"tcg": 123456, "cm": 654321, "ck": ["<url>", "<foil url>"], "mp": "<url>", "ct": 98765}}}
+ "l":  {"<scryfall id>": [["ck", 0, "NM", 1299, 4, ""], ["ct", 1, "SP", 950, 1, "JA", "DE"], ["ed", 0, "NM", 6980, 2, "JA"]]},
+ "lk": {"<scryfall id>": {"tcg": 123456, "cm": 654321, "ck": ["<url>", "<foil url>"], "mp": "<url>", "ct": 98765,
+                          "ed": ["<path>", "<foil path>"]}}}
 ```
 
 - **`p`**: shop prices from MTGJSON's daily file (`tcgplayer`, `cardkingdom`, `cardsphere`,
@@ -64,13 +65,30 @@ printings; the site maps a Japanese printing to its English twin first.
   `index.json` `providers`.
 - **`l`**: offers with stock: `[shop, foil (0/1), condition, cents, copies, language, country]`.
   Shops: `ck` Card Kingdom, `mp` Mana Pool (US market), `ct` CardTrader (EU market; `country` is
-  the seller's). Language is empty for English. At most `LISTINGS_PER_FINISH` per market and
-  finish, cheapest first.
+  the seller's), `ed` ENNDAL GAMES (Japan market, `OFFER_MARKETS`: **the price is in yen**, not
+  cents; conditions NM and EX; language `JA` or empty for English). Language is empty for
+  English. At most `LISTINGS_PER_FINISH` per market and finish, cheapest first.
 - **`lk`**: product ids or URLs for links straight to the product: TCGplayer product id,
   Cardmarket product id, Card Kingdom URLs (non-foil, foil), Mana Pool URL, CardTrader
-  blueprint id.
+  blueprint id, ENNDAL GAMES product paths (non-foil, foil; after `https://www.enndalgames.com/`).
 
 `l` and `lk` are present only when offers were read.
+
+## `enndal.json.gz` (not published): one night of ENNDAL GAMES
+
+Written by `shop_enndal.py` (`nightly()`, `save()`) as the "enndal" artifact of the
+ENNDAL GAMES nightly workflow, and read by `build_prices.py --enndal`. Products in stock only;
+nothing of the shop's pages is kept besides these values.
+
+```json
+{"version": 1, "updated": "2026-10-17T17:00:00Z", "read_tonight": 210, "sets": 210,
+ "cats": {"2363": {"name": "ブルームバロウ", "read": "2026-10-17T17:00:00Z",
+                   "p": [["blb", "2", "normal", "<product path>", [["JA", "NM", 999, 11], ["EN", "NM", 799, 2]]]]}}}
+```
+
+Each product: Scryfall-style set code (`SET_ALIASES` fixes the codes that differ), collector
+number without leading zeros, finish (`normal`, `foil`, `etched`), its path on the shop, and an
+offer per language and condition `[language, condition, yen, copies]`.
 
 ## `movers.json`
 
