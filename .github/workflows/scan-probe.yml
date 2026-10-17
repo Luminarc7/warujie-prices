@@ -1,0 +1,74 @@
+# Card-scan probe (phase 1 of the card scan plan): fingerprints every card
+# art from Scryfall's pictures and measures, on made-up phone photos, how
+# often the right card is found. Runs only on this test branch; the pictures
+# are kept in the Actions cache so a later run downloads only what's new.
+name: Card scan probe
+on:
+  push:
+    branches: [claude/project-thread-x6rw3q]
+    paths: ['scan_probe/*.py', '.github/workflows/scan-probe.yml']
+  workflow_dispatch:
+permissions: { contents: write }
+concurrency: { group: scan-probe, cancel-in-progress: false }
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    env:
+      OUT: scan_probe/out
+      CACHE: scan_cache
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Install
+        run: |
+          mkdir -p $OUT
+          ( set -x
+            pip install numpy pillow opencv-python-headless onnxruntime
+            pip install torch torchvision onnx onnxscript --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+          ) > $OUT/log_install.txt 2>&1 || true
+          tail -5 $OUT/log_install.txt
+      - uses: actions/cache/restore@v4
+        with:
+          path: scan_cache
+          key: scan-pictures-${{ github.run_id }}
+          restore-keys: scan-pictures-
+      - name: Choose the pictures
+        run: |
+          ( set -x; python scan_probe/build_index.py select --out $OUT ) > $OUT/log_select.txt 2>&1 || true
+          tail -20 $OUT/log_select.txt
+      - name: Download the pictures (10 a second at most)
+        run: |
+          ( set -x; python scan_probe/build_index.py download --out $OUT --cache $CACHE --budget-min 200 --rate 10 ) > $OUT/log_download.txt 2>&1 || true
+          tail -5 $OUT/log_download.txt
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: scan_cache
+          key: scan-pictures-${{ github.run_id }}
+      - name: Image models
+        run: |
+          ( set -x; python scan_probe/export_model.py --out $OUT/models ) > $OUT/log_models.txt 2>&1 || true
+          tail -5 $OUT/log_models.txt
+      - name: Fingerprint the index
+        run: |
+          ( set -x; python scan_probe/build_index.py fingerprint --out $OUT --cache $CACHE ) > $OUT/log_fingerprint.txt 2>&1 || true
+          tail -5 $OUT/log_fingerprint.txt
+      - name: Test photos and matching
+        run: |
+          missing=$(python -c "import json; print(json.load(open('$OUT/download_summary.json'))['missing'])" 2>/dev/null || echo 999999)
+          echo "pictures still missing: $missing"
+          if [ "$missing" -lt 500 ]; then
+            ( set -x; python scan_probe/evaluate.py --out $OUT --cache $CACHE --budget-min 100 --workers 4 ) > $OUT/log_evaluate.txt 2>&1 || true
+            tail -60 $OUT/log_evaluate.txt
+          else
+            echo "download not finished; push again to continue" > $OUT/log_evaluate.txt
+          fi
+      - name: Commit the results
+        if: always()
+        run: |
+          git config user.name "scan probe"; git config user.email "scan-probe@users.noreply.github.com"
+          git add $OUT
+          git commit -m "Card scan probe results [skip ci]" || exit 0
+          for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 10; done
